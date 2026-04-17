@@ -1,10 +1,9 @@
 package main
 
 import (
-	"bufio"
+	"core/helpers"
+	"core/usecase"
 	"fmt"
-	"os"
-	"strings"
 )
 
 func main() {
@@ -17,29 +16,41 @@ func main() {
 		fmt.Println("4) Xoá chi tiêu")
 		fmt.Println("0) Thoát")
 		fmt.Println("")
-		fmt.Print(">>Chọn: ")
 
-		// var reader *bufio.Reader
-
-		// bảng mã ASCII
-
-		reader := bufio.NewReader(os.Stdin)
-		choice, err := reader.ReadString(byte(10))
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		choice = strings.TrimSpace(choice)
+		choice := helpers.PromptInput(">> Chọn: ")
 
 		switch choice {
 		case "1":
-			fmt.Println("Xử lý 1")
+			result, err := usecase.CreateExpense()
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("Tạo chi tiêu thành công ", result)
+			}
 		case "2":
-			fmt.Println("Xử lý 2")
+			reuslt, err := usecase.ReadExpense()
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("Lấy danh sách chi tiêu thành công ")
+				for _, value := range reuslt {
+					fmt.Printf("%+v \n", value)
+				}
+			}
 		case "3":
-			fmt.Println("Xử lý 3")
+			reuslt, err := usecase.UpdateExpense()
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("Update chi tiêu thành công ", reuslt)
+			}
 		case "4":
-			fmt.Println("Xử lý 5")
+			err := usecase.DeleteExpense()
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("Xoá chi tiêu thành công")
+			}
 		case "0":
 			fmt.Println("Tạm biệt!")
 			return
