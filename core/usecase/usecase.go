@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"sync"
+	"time"
 )
 
 const NAME_FILE_DATABASE = "database.json"
@@ -141,7 +143,7 @@ func DeleteExpense() error {
 
 	helpers.ReadFileJson(&listExpense, NAME_FILE_DATABASE)
 
-	indexDelete := 0
+	indexDelete := -1
 	for index := range listExpense {
 		if listExpense[index].Id == idInt {
 			indexDelete = index
@@ -150,17 +152,271 @@ func DeleteExpense() error {
 
 	fmt.Println("indexDelete", indexDelete)
 
-	if indexDelete > 0 {
+	if indexDelete > -1 {
 		listExpense = slices.Delete(listExpense, indexDelete, indexDelete+1)
 	}
 
 	fmt.Println("listExpense", listExpense)
 	fmt.Println("listExpense", &listExpense)
 
-	err = helpers.ReadFileJson(&listExpense, NAME_FILE_DATABASE)
+	err = helpers.WriteFileJson(&listExpense, NAME_FILE_DATABASE)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func jobListExpense() []model.Expense {
+	fmt.Println("jobListExpense bắt đầu")
+	time.Sleep(5 * time.Second)
+	listExpense, err := ReadExpense()
+	if err != nil {
+		return []model.Expense{}
+	}
+	return listExpense
+}
+func jobTotal() int {
+	fmt.Println("jobTotal bắt đầu")
+	time.Sleep(5 * time.Second)
+	listExpense, err := ReadExpense()
+	if err != nil {
+		return 0
+	}
+	total := len(listExpense)
+	return total
+}
+
+func NotGoroutine() {
+	startTime := time.Now()
+
+	list := jobListExpense()
+	total := jobTotal()
+
+	result := map[string]any{
+		"list":  list,
+		"total": total,
+	}
+
+	endTime := time.Since(startTime)
+
+	fmt.Println("NotGoroutine", result, endTime)
+}
+
+func Goroutine() {
+	startTime := time.Now()
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+
+	list := []model.Expense{}
+	go func(wg *sync.WaitGroup) {
+		defer func() {
+			fmt.Println("List Done")
+			wg.Done()
+		}()
+
+		list = jobListExpense()
+	}(&wg)
+
+	wg.Add(1)
+	total := 0
+	go func(wg *sync.WaitGroup) {
+		defer func() {
+			fmt.Println("Total Done")
+			wg.Done()
+		}()
+
+		total = jobTotal()
+	}(&wg)
+
+	wg.Wait()
+
+	result := map[string]any{
+		"list":  list,
+		"total": total,
+	}
+
+	endTime := time.Since(startTime)
+
+	fmt.Println("NotGoroutine", result, endTime)
+}
+
+func GoroutineWaiGroupChannel() {
+	startTime := time.Now()
+
+	var wg sync.WaitGroup
+
+	// cơ chế channel unbufer
+	// phải có GỬI và NHẬN
+	// GỬI và NHẬN cái nào tới trước thì sẽ bị block (ngừng đợi)
+	// GỬI tới trước: NHẬN được chạy => mới mở block
+	// NHẬN tới trước: GỬI được chạy => mới mở block
+	channelList := make(chan []model.Expense)
+	channelTotal := make(chan int)
+
+	wg.Add(1)
+
+	go func(wg *sync.WaitGroup, channelList chan []model.Expense) {
+		defer func() {
+			fmt.Println("List Done")
+			wg.Done()
+		}()
+
+		list := jobListExpense()
+
+		fmt.Println("jobListExpense GỬI")
+		channelList <- list
+	}(&wg, channelList)
+
+	wg.Add(1)
+	go func(wg *sync.WaitGroup, channelTotal chan int) {
+		defer func() {
+			fmt.Println("Total Done")
+			wg.Done()
+		}()
+
+		total := jobTotal()
+
+		fmt.Println("jobTotal GỬI")
+		channelTotal <- total
+	}(&wg, channelTotal)
+
+	fmt.Println("NHẬN")
+	list := <-channelList
+	total := <-channelTotal
+
+	wg.Wait()
+
+	result := map[string]any{
+		"list":  list,
+		"total": total,
+	}
+
+	endTime := time.Since(startTime)
+
+	fmt.Println("NotGoroutine", result, endTime)
+}
+
+// tận dụng cơ chế block của channel để đạt kết quả wg.Group()
+func GoroutineChannel() {
+	startTime := time.Now()
+
+	// cơ chế channel unbufer
+	// phải có GỬI và NHẬN (code phải được chạy)
+	// GỬI và NHẬN cái nào tới trước thì sẽ bị block (ngừng đợi)
+	// GỬI tới trước: NHẬN được chạy => mới mở block
+	// NHẬN tới trước: GỬI được chạy => mới mở block
+	channelList := make(chan []model.Expense)
+	channelTotal := make(chan int)
+
+	go func(channelList chan []model.Expense) {
+		list := jobListExpense()
+
+		fmt.Println("jobListExpense GỬI")
+		channelList <- list
+	}(channelList)
+
+	go func(channelTotal chan int) {
+		total := jobTotal()
+
+		fmt.Println("jobTotal GỬI")
+		channelTotal <- total
+	}(channelTotal)
+
+	fmt.Println("NHẬN")
+	list := <-channelList
+	total := <-channelTotal
+
+	result := map[string]any{
+		"list":  list,
+		"total": total,
+	}
+
+	endTime := time.Since(startTime)
+
+	fmt.Println("NotGoroutine", result, endTime)
+}
+
+func GoroutineWaiGroupBufferChannel() {
+	startTime := time.Now()
+
+	var wg sync.WaitGroup
+
+	// cơ chế channel bufer
+	// GỬI chỉ block khi bufer đã đầy
+	// NHẬN chỉ block khi bufer còn rỗng
+	channelList := make(chan []model.Expense, 1)
+	channelTotal := make(chan int, 1)
+
+	wg.Add(1)
+	go func(wg *sync.WaitGroup, channelList chan []model.Expense) {
+		defer func() {
+			fmt.Println("List Done")
+			wg.Done()
+		}()
+
+		list := jobListExpense()
+
+		fmt.Println("jobListExpense GỬI")
+		channelList <- list // [...] -> [list]
+		channelList <- list // [list] ❌ không chạy KHÔNG HOÀN THÀNH ĐƯỢC DÒNG CODE => BLOCK
+	}(&wg, channelList)
+
+	wg.Add(1)
+	go func(wg *sync.WaitGroup, channelTotal chan int) {
+		defer func() {
+			fmt.Println("Total Done")
+			wg.Done()
+		}()
+
+		total := jobTotal()
+
+		fmt.Println("jobTotal GỬI")
+		channelTotal <- total
+	}(&wg, channelTotal)
+
+	wg.Wait()
+
+	fmt.Println("NHẬN")
+	list := <-channelList
+	total := <-channelTotal
+
+	result := map[string]any{
+		"list":  list,
+		"total": total,
+	}
+
+	endTime := time.Since(startTime)
+
+	fmt.Println("NotGoroutine", result, endTime)
+}
+
+// racecondition
+// một goroutine đang xem giá trị cũ, trong khi có 1 goroutine đang sửa giá trị đó
+// go run --race .
+func Racecondition() {
+	// var mu sync.Mutex
+	var wg sync.WaitGroup
+	counter := 0
+
+	totalRoutine := 100
+
+	for i := 0; i < totalRoutine; i++ {
+		wg.Add(1)
+		go func() {
+			defer func() {
+				wg.Done()
+			}()
+			// mu.Lock()
+			counter = counter + 1
+			// mu.Unlock()
+		}()
+	}
+
+	wg.Wait()
+
+	fmt.Println("Mong muốn counter =", 100)
+	fmt.Println("Thực tế counter =", counter)
 }

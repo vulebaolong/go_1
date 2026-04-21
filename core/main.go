@@ -14,6 +14,7 @@ func main() {
 		fmt.Println("2) Liệt kê chi tiêu")
 		fmt.Println("3) Sửa chi tiêu")
 		fmt.Println("4) Xoá chi tiêu")
+		fmt.Println("5) Go-routine")
 		fmt.Println("0) Thoát")
 		fmt.Println("")
 
@@ -51,6 +52,17 @@ func main() {
 			} else {
 				fmt.Println("Xoá chi tiêu thành công")
 			}
+		case "5":
+			// parallel: song song
+			// concurent: đồng thời
+			// thread
+
+			// usecase.NotGoroutine()
+			// usecase.Goroutine()
+			// usecase.GoroutineWaiGroupChannel()
+			// usecase.GoroutineChannel()
+			// usecase.GoroutineWaiGroupBufferChannel()
+			usecase.Racecondition()
 		case "0":
 			fmt.Println("Tạm biệt!")
 			return
