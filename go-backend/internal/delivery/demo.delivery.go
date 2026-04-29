@@ -20,5 +20,8 @@ func (d *demoDelivery) RegisterRouter(apiGroup *gin.RouterGroup) {
 	demoGroup := apiGroup.Group("demo")
 	{
 		demoGroup.GET("query", d.demoHandler.Query)
+		demoGroup.DELETE("param/:id", d.demoHandler.Param)
+		demoGroup.POST("body", d.demoHandler.Body)
+		demoGroup.PATCH("header", d.demoHandler.Header)
 	}
 }
