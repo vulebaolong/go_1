@@ -5,24 +5,9 @@ import (
 	"go-backend/internal/dto"
 )
 
-type DemoUsecase struct{}
-
-func NewDemoUsecase() *DemoUsecase {
-	return &DemoUsecase{}
-}
-
-func (d *DemoUsecase) Query(input pagination.Query) any {
-	return input
-}
-
-func (d *DemoUsecase) Param(id int) int {
-	return id
-}
-
-func (d *DemoUsecase) Body(body dto.DemoBody) any {
-	return body
-}
-
-func (d *DemoUsecase) Header(apiKey string) any {
-	return apiKey
+type DemoUsecase interface {
+	Query(input pagination.Query) any
+	Param(id int) int
+	Body(body dto.DemoBody) any
+	Header(apiKey string) any
 }

@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
+	"go-backend/ent"
+	"go-backend/internal/common/ent_client"
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/middlewares"
 	"go-backend/internal/common/response"
-	"go-backend/internal/delivery"
-	"go-backend/internal/handler"
-	"go-backend/internal/usecase"
-	"net/http"
+	dependency "go-backend/internal/di"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +15,7 @@ import (
 type App struct {
 	ginEngine *gin.Engine
 	env       *env.Env
+	entClient *ent.Client
 }
 
 func NewApp() *App {
@@ -30,25 +30,16 @@ func NewApp() *App {
 		ctx.Abort()
 	}))
 
-	demoUsecase := usecase.NewDemoUsecase()
-	demoHandler := handler.NewDemoHandler(demoUsecase)
-	demoDelivery := delivery.NewDemoDelivery(demoHandler)
-
-	rootDelivery := delivery.NewRootDelivery(demoDelivery)
-	rootDelivery.RegisterRouter(ginEngine)
-
-	// Define a simple GET endpoint
-	// rest API, restful API
-	ginEngine.GET("/ping", func(c *gin.Context) {
-		// Return JSON response
-		c.JSON(http.StatusOK, gin.H{
-			"message1": "pong",
-		})
-	})
+	// ginEngine.Use(middlewares.A)
+	// ginEngine.Use(middlewares.B)
+	// ginEngine.Use(middlewares.C)
+	entClient := ent_client.New()
+	dependency.Injection(ginEngine)
 
 	return &App{
 		ginEngine: ginEngine,
 		env:       env,
+		entClient: entClient,
 	}
 }
 

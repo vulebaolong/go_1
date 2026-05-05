@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"go-backend/internal/common/middlewares"
 	"go-backend/internal/common/pagination"
 	"go-backend/internal/common/response"
 	"go-backend/internal/dto"
@@ -12,10 +13,10 @@ import (
 )
 
 type DemoHandler struct {
-	demoUsecase *usecase.DemoUsecase
+	demoUsecase usecase.DemoUsecase
 }
 
-func NewDemoHandler(demoUsecase *usecase.DemoUsecase) *DemoHandler {
+func NewDemoHandler(demoUsecase usecase.DemoUsecase) *DemoHandler {
 	return &DemoHandler{
 		demoUsecase: demoUsecase,
 	}
@@ -36,6 +37,21 @@ func (d *DemoHandler) Query(ctx *gin.Context) {
 }
 
 func (d *DemoHandler) Param(ctx *gin.Context) {
+	fmt.Println("")
+	fmt.Println("Handler Param (mid)")
+
+	userRaw, exists := ctx.Get("user")
+	if !exists {
+		fmt.Println("Lỗi không có user")
+	}
+	user, ok := userRaw.(middlewares.User)
+	if !ok {
+		fmt.Println("Lỗi không phải struct User")
+	}
+	fmt.Println("Handler nhận được", user)
+
+	fmt.Println("")
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 	// panic("Lỗi không kiểm soát được")
 	if err != nil {
