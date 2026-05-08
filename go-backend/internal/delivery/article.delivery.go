@@ -20,5 +20,6 @@ func (d *articleDelivery) RegisterRouter(apiGroup *gin.RouterGroup) {
 	articleGroup := apiGroup.Group("article")
 	{
 		articleGroup.POST("", d.articleHandler.Create)
+		articleGroup.GET("", d.articleHandler.FindAll)
 	}
 }

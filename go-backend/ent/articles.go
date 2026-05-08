@@ -20,15 +20,15 @@ type Articles struct {
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
-	Content *string `json:"content,omitempty"`
+	Content *string `json:"content"`
 	// ImageURL holds the value of the "image_url" field.
-	ImageURL *string `json:"image_url,omitempty"`
+	ImageURL *string `json:"imageUrl"`
 	// LikeCount holds the value of the "like_count" field.
-	LikeCount int `json:"like_count,omitempty"`
+	LikeCount int `json:"likeCount"`
 	// Views holds the value of the "views" field.
 	Views int `json:"views,omitempty"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty"`
+	UserID int `json:"userId"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.

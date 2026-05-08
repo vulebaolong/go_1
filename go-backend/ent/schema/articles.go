@@ -16,11 +16,11 @@ type Articles struct {
 func (Articles) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("title").MaxLen(255),
-		field.String("content").Optional().Nillable(),
-		field.String("image_url").Optional().Nillable(),
-		field.Int("like_count").Default(0),
+		field.String("content").Optional().Nillable().StructTag(`json:"content"`),
+		field.String("image_url").Optional().Nillable().StructTag(`json:"imageUrl"`),
+		field.Int("like_count").Default(0).StructTag(`json:"likeCount"`),
 		field.Int("views").Default(0),
-		field.Int("user_id"),
+		field.Int("user_id").StructTag(`json:"userId"`),
 
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

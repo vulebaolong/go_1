@@ -5,6 +5,7 @@ import (
 	"go-backend/ent"
 	"go-backend/internal/common/ent_client"
 	"go-backend/internal/common/env"
+	"go-backend/internal/common/gorm_client"
 	"go-backend/internal/common/middlewares"
 	"go-backend/internal/common/response"
 	dependency "go-backend/internal/di"
@@ -33,8 +34,9 @@ func NewApp() *App {
 	// ginEngine.Use(middlewares.A)
 	// ginEngine.Use(middlewares.B)
 	// ginEngine.Use(middlewares.C)
-	entClient := ent_client.New()
-	dependency.Injection(ginEngine)
+	entClient := ent_client.New(env)
+	gormClient := gorm_client.New(env)
+	dependency.Injection(ginEngine, entClient, gormClient)
 
 	return &App{
 		ginEngine: ginEngine,

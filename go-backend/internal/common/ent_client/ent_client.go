@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"go-backend/ent"
+	"go-backend/internal/common/env"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func New() *ent.Client {
-	client, err := ent.Open("mysql", "root:12345@tcp(localhost:3307)/go-backend?parseTime=True")
+func New(env *env.Env) *ent.Client {
+	client, err := ent.Open("mysql", env.DatabaseUrl)
 	if err != nil {
 		log.Fatalf("❌ [ENT] failed opening connection to mysql: %v", err)
 	}
