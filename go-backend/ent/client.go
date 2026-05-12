@@ -309,12 +309,14 @@ func (c *ArticlesClient) GetX(ctx context.Context, id int) *Articles {
 
 // Hooks returns the client hooks.
 func (c *ArticlesClient) Hooks() []Hook {
-	return c.hooks.Articles
+	hooks := c.hooks.Articles
+	return append(hooks[:len(hooks):len(hooks)], articles.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
 func (c *ArticlesClient) Interceptors() []Interceptor {
-	return c.inters.Articles
+	inters := c.inters.Articles
+	return append(inters[:len(inters):len(inters)], articles.Interceptors[:]...)
 }
 
 func (c *ArticlesClient) mutate(ctx context.Context, m *ArticlesMutation) (Value, error) {

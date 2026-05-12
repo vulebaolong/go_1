@@ -22,6 +22,7 @@ require (
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.12 // indirect
+	github.com/gin-contrib/cors v1.7.7 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
@@ -49,7 +50,7 @@ require (
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.5.0 // indirect
-	golang.org/x/arch v0.22.0 // indirect
+	golang.org/x/arch v0.23.0 // indirect
 	golang.org/x/crypto v0.48.0 // indirect
 	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/net v0.51.0 // indirect

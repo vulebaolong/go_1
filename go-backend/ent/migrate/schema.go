@@ -11,6 +11,7 @@ var (
 	// ArticlesColumns holds the columns for the "articles" table.
 	ArticlesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "content", Type: field.TypeString, Nullable: true},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},

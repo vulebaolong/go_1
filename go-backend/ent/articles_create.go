@@ -20,6 +20,20 @@ type ArticlesCreate struct {
 	hooks    []Hook
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (_c *ArticlesCreate) SetDeletedAt(v time.Time) *ArticlesCreate {
+	_c.mutation.SetDeletedAt(v)
+	return _c
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_c *ArticlesCreate) SetNillableDeletedAt(v *time.Time) *ArticlesCreate {
+	if v != nil {
+		_c.SetDeletedAt(*v)
+	}
+	return _c
+}
+
 // SetTitle sets the "title" field.
 func (_c *ArticlesCreate) SetTitle(v string) *ArticlesCreate {
 	_c.mutation.SetTitle(v)
@@ -123,7 +137,9 @@ func (_c *ArticlesCreate) Mutation() *ArticlesMutation {
 
 // Save creates the Articles in the database.
 func (_c *ArticlesCreate) Save(ctx context.Context) (*Articles, error) {
-	_c.defaults()
+	if err := _c.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -150,7 +166,7 @@ func (_c *ArticlesCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *ArticlesCreate) defaults() {
+func (_c *ArticlesCreate) defaults() error {
 	if _, ok := _c.mutation.LikeCount(); !ok {
 		v := articles.DefaultLikeCount
 		_c.mutation.SetLikeCount(v)
@@ -160,13 +176,20 @@ func (_c *ArticlesCreate) defaults() {
 		_c.mutation.SetViews(v)
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
+		if articles.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized articles.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := articles.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
+		if articles.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized articles.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := articles.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -220,6 +243,10 @@ func (_c *ArticlesCreate) createSpec() (*Articles, *sqlgraph.CreateSpec) {
 		_node = &Articles{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(articles.Table, sqlgraph.NewFieldSpec(articles.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.DeletedAt(); ok {
+		_spec.SetField(articles.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(articles.FieldTitle, field.TypeString, value)
 		_node.Title = value

@@ -21,5 +21,6 @@ func (d *articleDelivery) RegisterRouter(apiGroup *gin.RouterGroup) {
 	{
 		articleGroup.POST("", d.articleHandler.Create)
 		articleGroup.GET("", d.articleHandler.FindAll)
+		articleGroup.DELETE(":id", d.articleHandler.Delete)
 	}
 }

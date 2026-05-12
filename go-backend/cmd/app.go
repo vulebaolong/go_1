@@ -10,6 +10,7 @@ import (
 	"go-backend/internal/common/response"
 	dependency "go-backend/internal/di"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,6 +31,21 @@ func NewApp() *App {
 		ctx.Error(response.NewInternalServerErrorException())
 		ctx.Abort()
 	}))
+
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowOrigins = []string{"http://localhost:3000", "https://google.com"}
+	ginEngine.Use(cors.New(corsConfig))
+
+	// ginEngine.Use(func(ctx *gin.Context) {
+	// 	ctx.Header("access-control-allow-origin", "http://localhost:3000")
+	// 	if ctx.Request.Method == "OPTIONS" {
+	// 		ctx.Header("access-control-allow-headers", "Origin,Content-Length,Content-Type")
+	// 		ctx.Header("access-control-allow-methods", "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS")
+	// 		ctx.Header("access-control-max-age", "43201")
+	// 		ctx.AbortWithStatus(204)
+	// 		return
+	// 	}
+	// })
 
 	// ginEngine.Use(middlewares.A)
 	// ginEngine.Use(middlewares.B)

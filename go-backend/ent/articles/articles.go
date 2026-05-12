@@ -5,6 +5,7 @@ package articles
 import (
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -13,6 +14,8 @@ const (
 	Label = "articles"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
 	// FieldContent holds the string denoting the content field in the database.
@@ -36,6 +39,7 @@ const (
 // Columns holds all SQL columns for articles fields.
 var Columns = []string{
 	FieldID,
+	FieldDeletedAt,
 	FieldTitle,
 	FieldContent,
 	FieldImageURL,
@@ -56,7 +60,14 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "go-backend/ent/runtime"
 var (
+	Hooks        [2]ent.Hook
+	Interceptors [1]ent.Interceptor
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// DefaultLikeCount holds the default value on creation for the "like_count" field.
@@ -77,6 +88,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }
 
 // ByTitle orders the results by the title field.

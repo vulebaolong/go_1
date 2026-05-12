@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"go-backend/internal/common/pagination"
 	"go-backend/internal/common/response"
 	"go-backend/internal/dto"
 	"go-backend/internal/usecase"
 	"io"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +35,7 @@ func (a *ArticleHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	reuslt, err := a.articleUsecase.Create(ctx, body)
+	reuslt, err := a.articleUsecase.Create(ctx.Request.Context(), body)
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -48,13 +50,37 @@ func (a *ArticleHandler) FindAll(ctx *gin.Context) {
 		ctx.Query("pageSize"),
 	)
 
+	filterString := ctx.DefaultQuery("filters", "{}")
+	var filters dto.ArticleFindAllFilters
+	json.Unmarshal([]byte(filterString), &filters)
+
+	fmt.Printf("%+v \n\n", filters)
+
 	input := dto.ArticleFindAllInput{
-		Query: queryPagi,
+		Query:                 queryPagi,
+		ArticleFindAllFilters: filters,
 	}
 
 	fmt.Printf("%+v \n\n", queryPagi)
 
-	reuslt, err := a.articleUsecase.FindAll(ctx, input)
+	reuslt, err := a.articleUsecase.FindAll(ctx.Request.Context(), input)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	response.Success(reuslt, "", 0, ctx)
+}
+
+func (a *ArticleHandler) Delete(ctx *gin.Context) {
+	idString := ctx.Param("id")
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		ctx.Error(response.NewBadRequestException(err.Error()))
+		return
+	}
+
+	reuslt, err := a.articleUsecase.Delete(ctx.Request.Context(), id)
 	if err != nil {
 		ctx.Error(err)
 		return

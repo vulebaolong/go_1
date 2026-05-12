@@ -28,6 +28,26 @@ func (_u *ArticlesUpdate) Where(ps ...predicate.Articles) *ArticlesUpdate {
 	return _u
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *ArticlesUpdate) SetDeletedAt(v time.Time) *ArticlesUpdate {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *ArticlesUpdate) SetNillableDeletedAt(v *time.Time) *ArticlesUpdate {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *ArticlesUpdate) ClearDeletedAt() *ArticlesUpdate {
+	_u.mutation.ClearDeletedAt()
+	return _u
+}
+
 // SetTitle sets the "title" field.
 func (_u *ArticlesUpdate) SetTitle(v string) *ArticlesUpdate {
 	_u.mutation.SetTitle(v)
@@ -158,7 +178,9 @@ func (_u *ArticlesUpdate) Mutation() *ArticlesMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (_u *ArticlesUpdate) Save(ctx context.Context) (int, error) {
-	_u.defaults()
+	if err := _u.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -185,11 +207,15 @@ func (_u *ArticlesUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *ArticlesUpdate) defaults() {
+func (_u *ArticlesUpdate) defaults() error {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		if articles.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized articles.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := articles.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -213,6 +239,12 @@ func (_u *ArticlesUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(articles.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(articles.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(articles.FieldTitle, field.TypeString, value)
@@ -268,6 +300,26 @@ type ArticlesUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ArticlesMutation
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (_u *ArticlesUpdateOne) SetDeletedAt(v time.Time) *ArticlesUpdateOne {
+	_u.mutation.SetDeletedAt(v)
+	return _u
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (_u *ArticlesUpdateOne) SetNillableDeletedAt(v *time.Time) *ArticlesUpdateOne {
+	if v != nil {
+		_u.SetDeletedAt(*v)
+	}
+	return _u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (_u *ArticlesUpdateOne) ClearDeletedAt() *ArticlesUpdateOne {
+	_u.mutation.ClearDeletedAt()
+	return _u
 }
 
 // SetTitle sets the "title" field.
@@ -413,7 +465,9 @@ func (_u *ArticlesUpdateOne) Select(field string, fields ...string) *ArticlesUpd
 
 // Save executes the query and returns the updated Articles entity.
 func (_u *ArticlesUpdateOne) Save(ctx context.Context) (*Articles, error) {
-	_u.defaults()
+	if err := _u.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
@@ -440,11 +494,15 @@ func (_u *ArticlesUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *ArticlesUpdateOne) defaults() {
+func (_u *ArticlesUpdateOne) defaults() error {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
+		if articles.UpdateDefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized articles.UpdateDefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := articles.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -485,6 +543,12 @@ func (_u *ArticlesUpdateOne) sqlSave(ctx context.Context) (_node *Articles, err 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.DeletedAt(); ok {
+		_spec.SetField(articles.FieldDeletedAt, field.TypeTime, value)
+	}
+	if _u.mutation.DeletedAtCleared() {
+		_spec.ClearField(articles.FieldDeletedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(articles.FieldTitle, field.TypeString, value)

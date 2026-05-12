@@ -1,6 +1,7 @@
 package schema
 
 import (
+	softdelete "go-backend/ent/soft-delete"
 	"time"
 
 	"entgo.io/ent"
@@ -30,4 +31,10 @@ func (Articles) Fields() []ent.Field {
 // Edges of the Articles.
 func (Articles) Edges() []ent.Edge {
 	return nil
+}
+
+func (Articles) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		softdelete.SoftDeleteMixin{},
+	}
 }

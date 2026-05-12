@@ -8,6 +8,8 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	_ "go-backend/ent/runtime"
 )
 
 func New(env *env.Env) *ent.Client {

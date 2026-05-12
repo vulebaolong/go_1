@@ -8,6 +8,14 @@ type Query struct {
 	Offset   int
 }
 
+type PaginationRes struct {
+	Items     any `json:"items"`
+	Page      int `json:"page"`
+	PageSize  int `json:"pageSize"`
+	TotalItem int `json:"totalItem"`
+	TotalPage int `json:"totalPage"`
+}
+
 func Get(pageString string, pageSizeString string) Query {
 	page, err := strconv.Atoi(pageString)
 	if err != nil || page <= 0 {

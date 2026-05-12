@@ -2,10 +2,12 @@ package usecase_impl
 
 import (
 	"context"
+	"go-backend/internal/common/pagination"
 	"go-backend/internal/common/response"
 	"go-backend/internal/dto"
 	"go-backend/internal/repository"
 	"go-backend/internal/usecase"
+	"math"
 )
 
 type articleUsecase struct {
@@ -29,9 +31,37 @@ func (a *articleUsecase) Create(ctx context.Context, body dto.ArticleCreateReq) 
 
 // FindAll implements [usecase.ArticleUsecase].
 func (a *articleUsecase) FindAll(ctx context.Context, input dto.ArticleFindAllInput) (any, error) {
-	data, err := a.articleRepository.GetAll(ctx, input.Query)
+	data, err := a.articleRepository.GetAll(ctx, input.Query, input.ArticleFindAllFilters)
 	if err != nil {
 		return nil, response.NewBadRequestException(err.Error())
 	}
-	return data, nil
+
+	// totalItem: tổng số lượng item
+	totalItem, err := a.articleRepository.Count(ctx, input.ArticleFindAllFilters)
+	if err != nil {
+		return nil, response.NewBadRequestException(err.Error())
+	}
+
+	// totalPage: tổng số trang totalItem / pageSize
+	totalPage := float64(totalItem) / float64(input.PageSize)
+
+	result := pagination.PaginationRes{
+		Items:     data,
+		Page:      input.Page,
+		PageSize:  input.PageSize,
+		TotalItem: totalItem,
+		TotalPage: int(math.Ceil(totalPage)),
+	}
+
+	return result, nil
+}
+
+// Delete implements [usecase.ArticleUsecase].
+func (a *articleUsecase) Delete(ctx context.Context, id int) (any, error) {
+	err := a.articleRepository.Delete(ctx, id)
+	if err != nil {
+		return nil, response.NewBadRequestException(err.Error())
+	}
+
+	return true, nil
 }

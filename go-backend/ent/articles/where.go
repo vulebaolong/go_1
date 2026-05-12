@@ -54,6 +54,11 @@ func IDLTE(id int) predicate.Articles {
 	return predicate.Articles(sql.FieldLTE(FieldID, id))
 }
 
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldEQ(FieldDeletedAt, v))
+}
+
 // Title applies equality check predicate on the "title" field. It's identical to TitleEQ.
 func Title(v string) predicate.Articles {
 	return predicate.Articles(sql.FieldEQ(FieldTitle, v))
@@ -92,6 +97,56 @@ func CreatedAt(v time.Time) predicate.Articles {
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Articles {
 	return predicate.Articles(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldNEQ(FieldDeletedAt, v))
+}
+
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldNotIn(FieldDeletedAt, vs...))
+}
+
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldGT(FieldDeletedAt, v))
+}
+
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldGTE(FieldDeletedAt, v))
+}
+
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldLT(FieldDeletedAt, v))
+}
+
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Articles {
+	return predicate.Articles(sql.FieldLTE(FieldDeletedAt, v))
+}
+
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Articles {
+	return predicate.Articles(sql.FieldIsNull(FieldDeletedAt))
+}
+
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Articles {
+	return predicate.Articles(sql.FieldNotNull(FieldDeletedAt))
 }
 
 // TitleEQ applies the EQ predicate on the "title" field.

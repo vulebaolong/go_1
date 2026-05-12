@@ -8,6 +8,13 @@ type ArticleCreateReq struct {
 	ImageUrl *string `json:"image_url" binding:"omitempty"`
 }
 
+type ArticleFindAllFilters struct {
+	Id      int    `json:"id"`
+	Content string `json:"content"`
+	Views   *int   `json:"views"`
+}
+
 type ArticleFindAllInput struct {
 	pagination.Query
+	ArticleFindAllFilters
 }

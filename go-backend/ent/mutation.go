@@ -33,6 +33,7 @@ type ArticlesMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	deleted_at    *time.Time
 	title         *string
 	content       *string
 	image_url     *string
@@ -146,6 +147,55 @@ func (m *ArticlesMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *ArticlesMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *ArticlesMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Articles entity.
+// If the Articles object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ArticlesMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *ArticlesMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[articles.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *ArticlesMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[articles.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *ArticlesMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, articles.FieldDeletedAt)
 }
 
 // SetTitle sets the "title" field.
@@ -556,7 +606,10 @@ func (m *ArticlesMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ArticlesMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
+	if m.deleted_at != nil {
+		fields = append(fields, articles.FieldDeletedAt)
+	}
 	if m.title != nil {
 		fields = append(fields, articles.FieldTitle)
 	}
@@ -589,6 +642,8 @@ func (m *ArticlesMutation) Fields() []string {
 // schema.
 func (m *ArticlesMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case articles.FieldDeletedAt:
+		return m.DeletedAt()
 	case articles.FieldTitle:
 		return m.Title()
 	case articles.FieldContent:
@@ -614,6 +669,8 @@ func (m *ArticlesMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ArticlesMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case articles.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	case articles.FieldTitle:
 		return m.OldTitle(ctx)
 	case articles.FieldContent:
@@ -639,6 +696,13 @@ func (m *ArticlesMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *ArticlesMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case articles.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
 	case articles.FieldTitle:
 		v, ok := value.(string)
 		if !ok {
@@ -764,6 +828,9 @@ func (m *ArticlesMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *ArticlesMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(articles.FieldDeletedAt) {
+		fields = append(fields, articles.FieldDeletedAt)
+	}
 	if m.FieldCleared(articles.FieldContent) {
 		fields = append(fields, articles.FieldContent)
 	}
@@ -784,6 +851,9 @@ func (m *ArticlesMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ArticlesMutation) ClearField(name string) error {
 	switch name {
+	case articles.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
 	case articles.FieldContent:
 		m.ClearContent()
 		return nil
@@ -798,6 +868,9 @@ func (m *ArticlesMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ArticlesMutation) ResetField(name string) error {
 	switch name {
+	case articles.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
 	case articles.FieldTitle:
 		m.ResetTitle()
 		return nil

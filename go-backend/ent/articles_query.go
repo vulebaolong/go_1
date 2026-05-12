@@ -262,12 +262,12 @@ func (_q *ArticlesQuery) Clone() *ArticlesQuery {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Articles.Query().
-//		GroupBy(articles.FieldTitle).
+//		GroupBy(articles.FieldDeletedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ArticlesQuery) GroupBy(field string, fields ...string) *ArticlesGroupBy {
@@ -285,11 +285,11 @@ func (_q *ArticlesQuery) GroupBy(field string, fields ...string) *ArticlesGroupB
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		DeletedAt time.Time `json:"deleted_at,omitempty"`
 //	}
 //
 //	client.Articles.Query().
-//		Select(articles.FieldTitle).
+//		Select(articles.FieldDeletedAt).
 //		Scan(ctx, &v)
 func (_q *ArticlesQuery) Select(fields ...string) *ArticlesSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
