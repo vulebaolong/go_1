@@ -8,3 +8,12 @@ import (
 
 // Articles is the predicate function for articles builders.
 type Articles func(*sql.Selector)
+
+// Foods is the predicate function for foods builders.
+type Foods func(*sql.Selector)
+
+// Orders is the predicate function for orders builders.
+type Orders func(*sql.Selector)
+
+// Users is the predicate function for users builders.
+type Users func(*sql.Selector)

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"go-backend/ent/articles"
 	"go-backend/ent/predicate"
+	"go-backend/ent/users"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -146,7 +147,6 @@ func (_u *ArticlesUpdate) AddViews(v int) *ArticlesUpdate {
 
 // SetUserID sets the "user_id" field.
 func (_u *ArticlesUpdate) SetUserID(v int) *ArticlesUpdate {
-	_u.mutation.ResetUserID()
 	_u.mutation.SetUserID(v)
 	return _u
 }
@@ -159,21 +159,32 @@ func (_u *ArticlesUpdate) SetNillableUserID(v *int) *ArticlesUpdate {
 	return _u
 }
 
-// AddUserID adds value to the "user_id" field.
-func (_u *ArticlesUpdate) AddUserID(v int) *ArticlesUpdate {
-	_u.mutation.AddUserID(v)
-	return _u
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *ArticlesUpdate) SetUpdatedAt(v time.Time) *ArticlesUpdate {
 	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
+// SetUsersID sets the "Users" edge to the Users entity by ID.
+func (_u *ArticlesUpdate) SetUsersID(id int) *ArticlesUpdate {
+	_u.mutation.SetUsersID(id)
+	return _u
+}
+
+// SetUsers sets the "Users" edge to the Users entity.
+func (_u *ArticlesUpdate) SetUsers(v *Users) *ArticlesUpdate {
+	return _u.SetUsersID(v.ID)
+}
+
 // Mutation returns the ArticlesMutation object of the builder.
 func (_u *ArticlesUpdate) Mutation() *ArticlesMutation {
 	return _u.mutation
+}
+
+// ClearUsers clears the "Users" edge to the Users entity.
+func (_u *ArticlesUpdate) ClearUsers() *ArticlesUpdate {
+	_u.mutation.ClearUsers()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -225,6 +236,9 @@ func (_u *ArticlesUpdate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Articles.title": %w`, err)}
 		}
 	}
+	if _u.mutation.UsersCleared() && len(_u.mutation.UsersIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Articles.Users"`)
+	}
 	return nil
 }
 
@@ -273,14 +287,37 @@ func (_u *ArticlesUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedViews(); ok {
 		_spec.AddField(articles.FieldViews, field.TypeInt, value)
 	}
-	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(articles.FieldUserID, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedUserID(); ok {
-		_spec.AddField(articles.FieldUserID, field.TypeInt, value)
-	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(articles.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   articles.UsersTable,
+			Columns: []string{articles.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(users.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   articles.UsersTable,
+			Columns: []string{articles.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(users.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -420,7 +457,6 @@ func (_u *ArticlesUpdateOne) AddViews(v int) *ArticlesUpdateOne {
 
 // SetUserID sets the "user_id" field.
 func (_u *ArticlesUpdateOne) SetUserID(v int) *ArticlesUpdateOne {
-	_u.mutation.ResetUserID()
 	_u.mutation.SetUserID(v)
 	return _u
 }
@@ -433,21 +469,32 @@ func (_u *ArticlesUpdateOne) SetNillableUserID(v *int) *ArticlesUpdateOne {
 	return _u
 }
 
-// AddUserID adds value to the "user_id" field.
-func (_u *ArticlesUpdateOne) AddUserID(v int) *ArticlesUpdateOne {
-	_u.mutation.AddUserID(v)
-	return _u
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *ArticlesUpdateOne) SetUpdatedAt(v time.Time) *ArticlesUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
+// SetUsersID sets the "Users" edge to the Users entity by ID.
+func (_u *ArticlesUpdateOne) SetUsersID(id int) *ArticlesUpdateOne {
+	_u.mutation.SetUsersID(id)
+	return _u
+}
+
+// SetUsers sets the "Users" edge to the Users entity.
+func (_u *ArticlesUpdateOne) SetUsers(v *Users) *ArticlesUpdateOne {
+	return _u.SetUsersID(v.ID)
+}
+
 // Mutation returns the ArticlesMutation object of the builder.
 func (_u *ArticlesUpdateOne) Mutation() *ArticlesMutation {
 	return _u.mutation
+}
+
+// ClearUsers clears the "Users" edge to the Users entity.
+func (_u *ArticlesUpdateOne) ClearUsers() *ArticlesUpdateOne {
+	_u.mutation.ClearUsers()
+	return _u
 }
 
 // Where appends a list predicates to the ArticlesUpdate builder.
@@ -511,6 +558,9 @@ func (_u *ArticlesUpdateOne) check() error {
 		if err := articles.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Articles.title": %w`, err)}
 		}
+	}
+	if _u.mutation.UsersCleared() && len(_u.mutation.UsersIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "Articles.Users"`)
 	}
 	return nil
 }
@@ -577,14 +627,37 @@ func (_u *ArticlesUpdateOne) sqlSave(ctx context.Context) (_node *Articles, err 
 	if value, ok := _u.mutation.AddedViews(); ok {
 		_spec.AddField(articles.FieldViews, field.TypeInt, value)
 	}
-	if value, ok := _u.mutation.UserID(); ok {
-		_spec.SetField(articles.FieldUserID, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.AddedUserID(); ok {
-		_spec.AddField(articles.FieldUserID, field.TypeInt, value)
-	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(articles.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   articles.UsersTable,
+			Columns: []string{articles.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(users.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   articles.UsersTable,
+			Columns: []string{articles.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(users.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Articles{config: _u.config}
 	_spec.Assign = _node.assignValues

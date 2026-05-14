@@ -1,0 +1,158 @@
+{
+    "Go Gin Delivery": {
+        "scope": "go",
+        "prefix": "gin delivery",
+        "body": [
+            "package delivery",
+            "",
+            "import (",
+            "\t\"github.com/gin-gonic/gin\"",
+            ")",
+            "",
+            "type ${1}Delivery struct {",
+            "\t${1}Handler *handler.${1/(.*)/${1:/capitalize}/}Handler",
+            "}",
+            "",
+            "func New${1/(.*)/${1:/capitalize}/}Delivery(${1}Handler *handler.${1/(.*)/${1:/capitalize}/}Handler) *${1}Delivery {",
+            "\treturn &${1}Delivery{",
+            "\t\t${1}Handler: ${1}Handler,",
+            "\t}",
+            "}",
+            "",
+            "func (d *${1}Delivery) RegisterRouter(apiGroup *gin.RouterGroup) {",
+            "\t${1}Group := apiGroup.Group(\"${2:${1}}\")",
+            "\t{",
+            "\t\t${1}Group.GET(\"\", d.${1}Handler.FindAll)",
+            "\t}",
+            "}"
+        ],
+        "description": "Create Gin delivery router structure"
+    },
+    "Go Gin Handler": {
+        "scope": "go",
+        "prefix": "gin handler",
+        "body": [
+            "package handler",
+            "",
+            "import (",
+            "\t\"github.com/gin-gonic/gin\"",
+            ")",
+            "",
+            "type ${1/(.*)/${1:/capitalize}/}Handler struct {",
+            "\t${1}Usecase usecase.${1/(.*)/${1:/capitalize}/}Usecase",
+            "}",
+            "",
+            "func New${1/(.*)/${1:/capitalize}/}Handler(${1}Usecase usecase.${1/(.*)/${1:/capitalize}/}Usecase) *${1/(.*)/${1:/capitalize}/}Handler {",
+            "\treturn &${1/(.*)/${1:/capitalize}/}Handler{",
+            "\t\t${1}Usecase: ${1}Usecase,",
+            "\t}",
+            "}",
+            "",
+            "func (a *${1/(.*)/${1:/capitalize}/}Handler) FindAll(ctx *gin.Context) {",
+            "\tresult, err := a.${1}Usecase.FindAll(ctx.Request.Context())",
+            "\tif err != nil {",
+            "\t\tctx.Error(err)",
+            "\t\treturn",
+            "\t}",
+            "",
+            "\tresponse.Success(result, \"\", 0, ctx)",
+            "}"
+        ],
+        "description": "Create Gin handler with auto capitalize entity name"
+    },
+    "Go Usecase Interface": {
+        "scope": "go",
+        "prefix": "gin usecase interface",
+        "body": [
+            "package usecase",
+            "",
+            "import (",
+            "\t\"context\"",
+            ")",
+            "",
+            "type ${1/(.*)/${1:/capitalize}/}Usecase interface {",
+            "\tFindAll(ctx context.Context) (any, error)",
+            "}"
+        ],
+        "description": "Create usecase interface with auto capitalize entity name"
+    },
+    "Go Usecase Impl": {
+        "scope": "go",
+        "prefix": "gin usecase impl",
+        "body": [
+            "package usecase_impl",
+            "",
+            "import (",
+            "\t\"context\"",
+            ")",
+            "",
+            "type ${1}Usecase struct {",
+            "\t${2}Repository repository.${2/(.*)/${1:/capitalize}/}Repository",
+            "}",
+            "",
+            "func New${1/(.*)/${1:/capitalize}/}Usecase(${2}Repository repository.${2/(.*)/${1:/capitalize}/}Repository) usecase.${1/(.*)/${1:/capitalize}/}Usecase {",
+            "\treturn &${1}Usecase{",
+            "\t\t${2}Repository: ${2}Repository,",
+            "\t}",
+            "}",
+            "",
+            "// FindAll implements [usecase.${1/(.*)/${1:/capitalize}/}Usecase].",
+            "func (a *${1}Usecase) FindAll(ctx context.Context) (any, error) {",
+            "\treturn \"FindAll\", nil",
+            "}"
+        ],
+        "description": "Create usecase implementation shell with auto capitalize entity name"
+    },
+    "Go Repository Interface": {
+        "scope": "go",
+        "prefix": "gin repository interface",
+        "body": [
+            "package repository",
+            "",
+            "import (",
+            "\t\"context\"",
+            ")",
+            "",
+            "type ${1/(.*)/${1:/capitalize}/}Repository interface {",
+            "\tFindAll(ctx context.Context) (any, error)",
+            "}"
+        ],
+        "description": "Create repository interface with auto capitalize entity name"
+    },
+    "Go Repository Impl": {
+        "scope": "go",
+        "prefix": "gin repository impl",
+        "body": [
+            "package repository_impl",
+            "",
+            "import (",
+            "\t\"context\"",
+            "",
+            ")",
+            "",
+            "type ${1:}Repository struct {}",
+            "",
+            "func New${1/(.*)/${1:/capitalize}/}Repository() repository.${1/(.*)/${1:/capitalize}/}Repository {",
+            "\treturn &${1}Repository{}",
+            "}",
+            "",
+            "// FindAll implements [repository.${1/(.*)/${1:/capitalize}/}Repository].",
+            "func (a *${1}Repository) FindAll(ctx context.Context) (any, error) {",
+            "\t${2:return nil, nil}",
+            "}"
+        ],
+        "description": "Create repository implementation shell with auto capitalize entity name"
+    },
+    "Go Dependency Injection": {
+        "scope": "go",
+        "prefix": "gin dependency injection",
+        "body": [
+            "${2}Repository := repository_impl.New${2/(.*)/${1:/capitalize}/}Repository()",
+            "",
+            "${1}Usecase := usecase_impl.New${1/(.*)/${1:/capitalize}/}Usecase(${2}Repository)",
+            "${1}Handler := handler.New${1/(.*)/${1:/capitalize}/}Handler(${1}Usecase)",
+            "${1}Delivery := delivery.New${1/(.*)/${1:/capitalize}/}Delivery(${1}Handler)"
+        ],
+        "description": "Wire usecase, handler, delivery with auto capitalize entity name"
+    },
+}

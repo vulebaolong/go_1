@@ -20,6 +20,42 @@ func (f ArticlesFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ArticlesMutation", m)
 }
 
+// The FoodsFunc type is an adapter to allow the use of ordinary
+// function as Foods mutator.
+type FoodsFunc func(context.Context, *ent.FoodsMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f FoodsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.FoodsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FoodsMutation", m)
+}
+
+// The OrdersFunc type is an adapter to allow the use of ordinary
+// function as Orders mutator.
+type OrdersFunc func(context.Context, *ent.OrdersMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f OrdersFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.OrdersMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.OrdersMutation", m)
+}
+
+// The UsersFunc type is an adapter to allow the use of ordinary
+// function as Users mutator.
+type UsersFunc func(context.Context, *ent.UsersMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UsersFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UsersMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UsersMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

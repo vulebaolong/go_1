@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"go-backend/ent/articles"
+	"go-backend/ent/users"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -130,6 +131,17 @@ func (_c *ArticlesCreate) SetNillableUpdatedAt(v *time.Time) *ArticlesCreate {
 	return _c
 }
 
+// SetUsersID sets the "Users" edge to the Users entity by ID.
+func (_c *ArticlesCreate) SetUsersID(id int) *ArticlesCreate {
+	_c.mutation.SetUsersID(id)
+	return _c
+}
+
+// SetUsers sets the "Users" edge to the Users entity.
+func (_c *ArticlesCreate) SetUsers(v *Users) *ArticlesCreate {
+	return _c.SetUsersID(v.ID)
+}
+
 // Mutation returns the ArticlesMutation object of the builder.
 func (_c *ArticlesCreate) Mutation() *ArticlesMutation {
 	return _c.mutation
@@ -217,6 +229,9 @@ func (_c *ArticlesCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Articles.updated_at"`)}
 	}
+	if len(_c.mutation.UsersIDs()) == 0 {
+		return &ValidationError{Name: "Users", err: errors.New(`ent: missing required edge "Articles.Users"`)}
+	}
 	return nil
 }
 
@@ -267,10 +282,6 @@ func (_c *ArticlesCreate) createSpec() (*Articles, *sqlgraph.CreateSpec) {
 		_spec.SetField(articles.FieldViews, field.TypeInt, value)
 		_node.Views = value
 	}
-	if value, ok := _c.mutation.UserID(); ok {
-		_spec.SetField(articles.FieldUserID, field.TypeInt, value)
-		_node.UserID = value
-	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(articles.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
@@ -278,6 +289,23 @@ func (_c *ArticlesCreate) createSpec() (*Articles, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(articles.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if nodes := _c.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   articles.UsersTable,
+			Columns: []string{articles.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(users.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

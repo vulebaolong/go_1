@@ -4,7 +4,10 @@ package runtime
 
 import (
 	"go-backend/ent/articles"
+	"go-backend/ent/foods"
+	"go-backend/ent/orders"
 	"go-backend/ent/schema"
+	"go-backend/ent/users"
 	"time"
 )
 
@@ -42,6 +45,60 @@ func init() {
 	articles.DefaultUpdatedAt = articlesDescUpdatedAt.Default.(func() time.Time)
 	// articles.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	articles.UpdateDefaultUpdatedAt = articlesDescUpdatedAt.UpdateDefault.(func() time.Time)
+	foodsMixin := schema.Foods{}.Mixin()
+	foodsMixinHooks0 := foodsMixin[0].Hooks()
+	foods.Hooks[0] = foodsMixinHooks0[0]
+	foods.Hooks[1] = foodsMixinHooks0[1]
+	foodsMixinInters0 := foodsMixin[0].Interceptors()
+	foods.Interceptors[0] = foodsMixinInters0[0]
+	foodsFields := schema.Foods{}.Fields()
+	_ = foodsFields
+	// foodsDescCreatedAt is the schema descriptor for created_at field.
+	foodsDescCreatedAt := foodsFields[2].Descriptor()
+	// foods.DefaultCreatedAt holds the default value on creation for the created_at field.
+	foods.DefaultCreatedAt = foodsDescCreatedAt.Default.(func() time.Time)
+	// foodsDescUpdatedAt is the schema descriptor for updated_at field.
+	foodsDescUpdatedAt := foodsFields[3].Descriptor()
+	// foods.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	foods.DefaultUpdatedAt = foodsDescUpdatedAt.Default.(func() time.Time)
+	// foods.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	foods.UpdateDefaultUpdatedAt = foodsDescUpdatedAt.UpdateDefault.(func() time.Time)
+	ordersMixin := schema.Orders{}.Mixin()
+	ordersMixinHooks0 := ordersMixin[0].Hooks()
+	orders.Hooks[0] = ordersMixinHooks0[0]
+	orders.Hooks[1] = ordersMixinHooks0[1]
+	ordersMixinInters0 := ordersMixin[0].Interceptors()
+	orders.Interceptors[0] = ordersMixinInters0[0]
+	ordersFields := schema.Orders{}.Fields()
+	_ = ordersFields
+	// ordersDescCreatedAt is the schema descriptor for created_at field.
+	ordersDescCreatedAt := ordersFields[2].Descriptor()
+	// orders.DefaultCreatedAt holds the default value on creation for the created_at field.
+	orders.DefaultCreatedAt = ordersDescCreatedAt.Default.(func() time.Time)
+	// ordersDescUpdatedAt is the schema descriptor for updated_at field.
+	ordersDescUpdatedAt := ordersFields[3].Descriptor()
+	// orders.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	orders.DefaultUpdatedAt = ordersDescUpdatedAt.Default.(func() time.Time)
+	// orders.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	orders.UpdateDefaultUpdatedAt = ordersDescUpdatedAt.UpdateDefault.(func() time.Time)
+	usersMixin := schema.Users{}.Mixin()
+	usersMixinHooks0 := usersMixin[0].Hooks()
+	users.Hooks[0] = usersMixinHooks0[0]
+	users.Hooks[1] = usersMixinHooks0[1]
+	usersMixinInters0 := usersMixin[0].Interceptors()
+	users.Interceptors[0] = usersMixinInters0[0]
+	usersFields := schema.Users{}.Fields()
+	_ = usersFields
+	// usersDescCreatedAt is the schema descriptor for created_at field.
+	usersDescCreatedAt := usersFields[6].Descriptor()
+	// users.DefaultCreatedAt holds the default value on creation for the created_at field.
+	users.DefaultCreatedAt = usersDescCreatedAt.Default.(func() time.Time)
+	// usersDescUpdatedAt is the schema descriptor for updated_at field.
+	usersDescUpdatedAt := usersFields[7].Descriptor()
+	// users.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	users.DefaultUpdatedAt = usersDescUpdatedAt.Default.(func() time.Time)
+	// users.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	users.UpdateDefaultUpdatedAt = usersDescUpdatedAt.UpdateDefault.(func() time.Time)
 }
 
 const (

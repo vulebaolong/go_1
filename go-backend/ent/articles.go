@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"go-backend/ent/articles"
+	"go-backend/ent/users"
 	"strings"
 	"time"
 
@@ -34,8 +35,31 @@ type Articles struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ArticlesQuery when eager-loading is set.
+	Edges        ArticlesEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ArticlesEdges holds the relations/edges for other nodes in the graph.
+type ArticlesEdges struct {
+	// Users holds the value of the Users edge.
+	Users *Users `json:"Users,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// UsersOrErr returns the Users value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ArticlesEdges) UsersOrErr() (*Users, error) {
+	if e.Users != nil {
+		return e.Users, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: users.Label}
+	}
+	return nil, &NotLoadedError{edge: "Users"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -137,6 +161,11 @@ func (_m *Articles) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Articles) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryUsers queries the "Users" edge of the Articles entity.
+func (_m *Articles) QueryUsers() *UsersQuery {
+	return NewArticlesClient(_m.config).QueryUsers(_m)
 }
 
 // Update returns a builder for updating this Articles.

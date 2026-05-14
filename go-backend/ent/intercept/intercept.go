@@ -8,7 +8,10 @@ import (
 
 	"go-backend/ent"
 	"go-backend/ent/articles"
+	"go-backend/ent/foods"
+	"go-backend/ent/orders"
 	"go-backend/ent/predicate"
+	"go-backend/ent/users"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -96,11 +99,98 @@ func (f TraverseArticles) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ArticlesQuery", q)
 }
 
+// The FoodsFunc type is an adapter to allow the use of ordinary function as a Querier.
+type FoodsFunc func(context.Context, *ent.FoodsQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f FoodsFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.FoodsQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.FoodsQuery", q)
+}
+
+// The TraverseFoods type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseFoods func(context.Context, *ent.FoodsQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseFoods) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseFoods) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.FoodsQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.FoodsQuery", q)
+}
+
+// The OrdersFunc type is an adapter to allow the use of ordinary function as a Querier.
+type OrdersFunc func(context.Context, *ent.OrdersQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f OrdersFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.OrdersQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.OrdersQuery", q)
+}
+
+// The TraverseOrders type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseOrders func(context.Context, *ent.OrdersQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseOrders) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseOrders) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.OrdersQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.OrdersQuery", q)
+}
+
+// The UsersFunc type is an adapter to allow the use of ordinary function as a Querier.
+type UsersFunc func(context.Context, *ent.UsersQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f UsersFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.UsersQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.UsersQuery", q)
+}
+
+// The TraverseUsers type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseUsers func(context.Context, *ent.UsersQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseUsers) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseUsers) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.UsersQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.UsersQuery", q)
+}
+
 // NewQuery returns the generic Query interface for the given typed query.
 func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
 	case *ent.ArticlesQuery:
 		return &query[*ent.ArticlesQuery, predicate.Articles, articles.OrderOption]{typ: ent.TypeArticles, tq: q}, nil
+	case *ent.FoodsQuery:
+		return &query[*ent.FoodsQuery, predicate.Foods, foods.OrderOption]{typ: ent.TypeFoods, tq: q}, nil
+	case *ent.OrdersQuery:
+		return &query[*ent.OrdersQuery, predicate.Orders, orders.OrderOption]{typ: ent.TypeOrders, tq: q}, nil
+	case *ent.UsersQuery:
+		return &query[*ent.UsersQuery, predicate.Users, users.OrderOption]{typ: ent.TypeUsers, tq: q}, nil
 	default:
 		return nil, fmt.Errorf("unknown query type %T", q)
 	}

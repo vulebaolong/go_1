@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"go-backend/ent/articles"
+	"go-backend/ent/foods"
+	"go-backend/ent/orders"
+	"go-backend/ent/users"
 	"reflect"
 	"sync"
 
@@ -74,6 +77,9 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			articles.Table: articles.ValidColumn,
+			foods.Table:    foods.ValidColumn,
+			orders.Table:   orders.ValidColumn,
+			users.Table:    users.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

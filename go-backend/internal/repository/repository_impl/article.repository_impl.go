@@ -67,6 +67,8 @@ func (a *articleRepository) GetAll(ctx context.Context, query pagination.Query, 
 
 	handlerFilter(filters, entQuery)
 
+	entQuery = entQuery.WithUsers()
+
 	entQuery = entQuery.Limit(query.PageSize)
 	entQuery = entQuery.Offset(query.Offset)
 	return entQuery.All(ctx)

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -464,26 +465,6 @@ func UserIDNotIn(vs ...int) predicate.Articles {
 	return predicate.Articles(sql.FieldNotIn(FieldUserID, vs...))
 }
 
-// UserIDGT applies the GT predicate on the "user_id" field.
-func UserIDGT(v int) predicate.Articles {
-	return predicate.Articles(sql.FieldGT(FieldUserID, v))
-}
-
-// UserIDGTE applies the GTE predicate on the "user_id" field.
-func UserIDGTE(v int) predicate.Articles {
-	return predicate.Articles(sql.FieldGTE(FieldUserID, v))
-}
-
-// UserIDLT applies the LT predicate on the "user_id" field.
-func UserIDLT(v int) predicate.Articles {
-	return predicate.Articles(sql.FieldLT(FieldUserID, v))
-}
-
-// UserIDLTE applies the LTE predicate on the "user_id" field.
-func UserIDLTE(v int) predicate.Articles {
-	return predicate.Articles(sql.FieldLTE(FieldUserID, v))
-}
-
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Articles {
 	return predicate.Articles(sql.FieldEQ(FieldCreatedAt, v))
@@ -562,6 +543,29 @@ func UpdatedAtLT(v time.Time) predicate.Articles {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Articles {
 	return predicate.Articles(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// HasUsers applies the HasEdge predicate on the "Users" edge.
+func HasUsers() predicate.Articles {
+	return predicate.Articles(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUsersWith applies the HasEdge predicate on the "Users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.Users) predicate.Articles {
+	return predicate.Articles(func(s *sql.Selector) {
+		step := newUsersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.
