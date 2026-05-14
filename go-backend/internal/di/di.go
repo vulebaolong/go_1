@@ -13,6 +13,7 @@ import (
 
 func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB) {
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
+	userRepository := repository_impl.NewUserRepository(entClient)
 
 	articleUsecase := usecase_impl.NewArticleUsecase(articleRepository)
 	articleHandler := handler.NewArticleHandler(articleUsecase)
@@ -22,6 +23,10 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	demoHandler := handler.NewDemoHandler(demoUsecase)
 	demoDelivery := delivery.NewDemoDelivery(demoHandler)
 
-	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery)
+	authUsecase := usecase_impl.NewAuthUsecase(userRepository)
+	authHandler := handler.NewAuthHandler(authUsecase)
+	authDelivery := delivery.NewAuthDelivery(authHandler)
+
+	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery)
 	rootDelivery.RegisterRouter(ginEngine)
 }
