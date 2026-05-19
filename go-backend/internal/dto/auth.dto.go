@@ -5,3 +5,8 @@ type AuthRegisterReq struct {
 	FullName string `json:"fullName" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
+
+type AuthLoginReq struct {
+	Email    string `json:"email" binding:"email,required"`
+	Password string `json:"password" binding:"required"`
+}

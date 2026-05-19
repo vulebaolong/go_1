@@ -22,19 +22,19 @@ type Users struct {
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// FullName holds the value of the "full_name" field.
-	FullName string `json:"full_name,omitempty"`
+	FullName *string `json:"fullName"`
 	// Avatar holds the value of the "avatar" field.
-	Avatar string `json:"avatar,omitempty"`
+	Avatar *string `json:"avatar"`
 	// Password holds the value of the "password" field.
-	Password string `json:"password,omitempty"`
+	Password *string `json:"-"`
 	// TotpSecret holds the value of the "totp_secret" field.
-	TotpSecret string `json:"totp_secret,omitempty"`
+	TotpSecret *string `json:"-"`
 	// GoogleID holds the value of the "google_id" field.
-	GoogleID string `json:"google_id,omitempty"`
+	GoogleID *string `json:"-"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UsersQuery when eager-loading is set.
 	Edges        UsersEdges `json:"edges"`
@@ -118,31 +118,36 @@ func (_m *Users) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field full_name", values[i])
 			} else if value.Valid {
-				_m.FullName = value.String
+				_m.FullName = new(string)
+				*_m.FullName = value.String
 			}
 		case users.FieldAvatar:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field avatar", values[i])
 			} else if value.Valid {
-				_m.Avatar = value.String
+				_m.Avatar = new(string)
+				*_m.Avatar = value.String
 			}
 		case users.FieldPassword:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field password", values[i])
 			} else if value.Valid {
-				_m.Password = value.String
+				_m.Password = new(string)
+				*_m.Password = value.String
 			}
 		case users.FieldTotpSecret:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field totp_secret", values[i])
 			} else if value.Valid {
-				_m.TotpSecret = value.String
+				_m.TotpSecret = new(string)
+				*_m.TotpSecret = value.String
 			}
 		case users.FieldGoogleID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field google_id", values[i])
 			} else if value.Valid {
-				_m.GoogleID = value.String
+				_m.GoogleID = new(string)
+				*_m.GoogleID = value.String
 			}
 		case users.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -208,20 +213,21 @@ func (_m *Users) String() string {
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)
 	builder.WriteString(", ")
-	builder.WriteString("full_name=")
-	builder.WriteString(_m.FullName)
+	if v := _m.FullName; v != nil {
+		builder.WriteString("full_name=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("avatar=")
-	builder.WriteString(_m.Avatar)
+	if v := _m.Avatar; v != nil {
+		builder.WriteString("avatar=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
-	builder.WriteString("password=")
-	builder.WriteString(_m.Password)
+	builder.WriteString("password=<sensitive>")
 	builder.WriteString(", ")
-	builder.WriteString("totp_secret=")
-	builder.WriteString(_m.TotpSecret)
+	builder.WriteString("totp_secret=<sensitive>")
 	builder.WriteString(", ")
-	builder.WriteString("google_id=")
-	builder.WriteString(_m.GoogleID)
+	builder.WriteString("google_id=<sensitive>")
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))

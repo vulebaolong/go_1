@@ -18,14 +18,14 @@ type Users struct {
 func (Users) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("email").Unique(),
-		field.String("full_name").Optional(),
-		field.String("avatar").Optional(),
-		field.String("password").Optional(),
-		field.String("totp_secret").Optional(),
-		field.String("google_id").Optional(),
+		field.String("full_name").Optional().Nillable().StructTag(`json:"fullName"`),
+		field.String("avatar").Optional().Nillable().StructTag(`json:"avatar"`),
+		field.String("password").Optional().Nillable().Sensitive(),
+		field.String("totp_secret").Optional().Nillable().Sensitive(),
+		field.String("google_id").Optional().Nillable().Sensitive(),
 
-		field.Time("created_at").Default(time.Now).Immutable(),
-		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+		field.Time("created_at").Default(time.Now).Immutable().StructTag(`json:"createdAt"`),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now).StructTag(`json:"updatedAt"`),
 	}
 }
 func (Users) Edges() []ent.Edge {

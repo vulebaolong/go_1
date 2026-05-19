@@ -2,8 +2,12 @@ package repository
 
 import (
 	"context"
+	"go-backend/ent"
+	"go-backend/internal/dto"
 )
 
 type UserRepository interface {
 	ExitsByEmail(ctx context.Context, email string) (bool, error)
+	CreateUser(ctx context.Context, body dto.AuthRegisterReq) (*ent.Users, error)
+	FindUserByEmail(ctx context.Context, email string) (*ent.Users, error)
 }

@@ -271,23 +271,23 @@ func (_c *UsersCreate) createSpec() (*Users, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.FullName(); ok {
 		_spec.SetField(users.FieldFullName, field.TypeString, value)
-		_node.FullName = value
+		_node.FullName = &value
 	}
 	if value, ok := _c.mutation.Avatar(); ok {
 		_spec.SetField(users.FieldAvatar, field.TypeString, value)
-		_node.Avatar = value
+		_node.Avatar = &value
 	}
 	if value, ok := _c.mutation.Password(); ok {
 		_spec.SetField(users.FieldPassword, field.TypeString, value)
-		_node.Password = value
+		_node.Password = &value
 	}
 	if value, ok := _c.mutation.TotpSecret(); ok {
 		_spec.SetField(users.FieldTotpSecret, field.TypeString, value)
-		_node.TotpSecret = value
+		_node.TotpSecret = &value
 	}
 	if value, ok := _c.mutation.GoogleID(); ok {
 		_spec.SetField(users.FieldGoogleID, field.TypeString, value)
-		_node.GoogleID = value
+		_node.GoogleID = &value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(users.FieldCreatedAt, field.TypeTime, value)

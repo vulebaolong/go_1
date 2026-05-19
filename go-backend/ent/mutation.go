@@ -2583,7 +2583,7 @@ func (m *UsersMutation) FullName() (r string, exists bool) {
 // OldFullName returns the old "full_name" field's value of the Users entity.
 // If the Users object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UsersMutation) OldFullName(ctx context.Context) (v string, err error) {
+func (m *UsersMutation) OldFullName(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldFullName is only allowed on UpdateOne operations")
 	}
@@ -2632,7 +2632,7 @@ func (m *UsersMutation) Avatar() (r string, exists bool) {
 // OldAvatar returns the old "avatar" field's value of the Users entity.
 // If the Users object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UsersMutation) OldAvatar(ctx context.Context) (v string, err error) {
+func (m *UsersMutation) OldAvatar(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAvatar is only allowed on UpdateOne operations")
 	}
@@ -2681,7 +2681,7 @@ func (m *UsersMutation) Password() (r string, exists bool) {
 // OldPassword returns the old "password" field's value of the Users entity.
 // If the Users object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UsersMutation) OldPassword(ctx context.Context) (v string, err error) {
+func (m *UsersMutation) OldPassword(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPassword is only allowed on UpdateOne operations")
 	}
@@ -2730,7 +2730,7 @@ func (m *UsersMutation) TotpSecret() (r string, exists bool) {
 // OldTotpSecret returns the old "totp_secret" field's value of the Users entity.
 // If the Users object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UsersMutation) OldTotpSecret(ctx context.Context) (v string, err error) {
+func (m *UsersMutation) OldTotpSecret(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTotpSecret is only allowed on UpdateOne operations")
 	}
@@ -2779,7 +2779,7 @@ func (m *UsersMutation) GoogleID() (r string, exists bool) {
 // OldGoogleID returns the old "google_id" field's value of the Users entity.
 // If the Users object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UsersMutation) OldGoogleID(ctx context.Context) (v string, err error) {
+func (m *UsersMutation) OldGoogleID(ctx context.Context) (v *string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldGoogleID is only allowed on UpdateOne operations")
 	}

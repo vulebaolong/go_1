@@ -2,6 +2,8 @@ package dependency
 
 import (
 	"go-backend/ent"
+	"go-backend/internal/common/env"
+	"go-backend/internal/common/middlewares"
 	"go-backend/internal/delivery"
 	"go-backend/internal/handler"
 	"go-backend/internal/repository/repository_impl"
@@ -11,9 +13,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB) {
+func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env) {
+
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
 	userRepository := repository_impl.NewUserRepository(entClient)
+
+	tokenUsecase := usecase_impl.NewTokenUsecase(env)
+	authMiddleware := middlewares.NewAuthMiddleware(tokenUsecase)
 
 	articleUsecase := usecase_impl.NewArticleUsecase(articleRepository)
 	articleHandler := handler.NewArticleHandler(articleUsecase)
@@ -23,9 +29,9 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	demoHandler := handler.NewDemoHandler(demoUsecase)
 	demoDelivery := delivery.NewDemoDelivery(demoHandler)
 
-	authUsecase := usecase_impl.NewAuthUsecase(userRepository)
+	authUsecase := usecase_impl.NewAuthUsecase(userRepository, tokenUsecase)
 	authHandler := handler.NewAuthHandler(authUsecase)
-	authDelivery := delivery.NewAuthDelivery(authHandler)
+	authDelivery := delivery.NewAuthDelivery(authHandler, authMiddleware)
 
 	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery)
 	rootDelivery.RegisterRouter(ginEngine)

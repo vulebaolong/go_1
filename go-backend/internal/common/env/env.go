@@ -2,7 +2,9 @@ package env
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -12,6 +14,9 @@ type Env struct {
 	Port         string
 	Host         string
 	DatabaseUrl  string
+
+	ExpiresAtAccessToken time.Duration
+	SecretAccessToken    string
 }
 
 func New() *Env {
@@ -23,15 +28,33 @@ func New() *Env {
 
 	databaseUrl := os.Getenv("DATABASE_URL")
 
+	expiresAtAccessTokenString := os.Getenv("EXPIRES_AT_ACCESS_TOKEN")
+	expiresAtAccessToken := getDuration(expiresAtAccessTokenString)
+
+	secretAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
+
 	fmt.Println("isProduction", isProduction)
 	fmt.Println("port", port)
 	fmt.Println("host", host)
 	fmt.Println("databaseUrl", databaseUrl)
 
+	fmt.Println("expiresAtAccessTokenString", expiresAtAccessTokenString)
+	fmt.Println("secretAccessToken", secretAccessToken)
+
 	return &Env{
-		IsProduction: isProduction,
-		Port:         port,
-		Host:         host,
-		DatabaseUrl:  databaseUrl,
+		IsProduction:         isProduction,
+		Port:                 port,
+		Host:                 host,
+		DatabaseUrl:          databaseUrl,
+		ExpiresAtAccessToken: expiresAtAccessToken,
+		SecretAccessToken:    secretAccessToken,
 	}
+}
+
+func getDuration(durationString string) time.Duration {
+	durationTime, err := time.ParseDuration(durationString)
+	if err != nil {
+		log.Fatal("Parser expiresAtAccessToken error")
+	}
+	return durationTime
 }
