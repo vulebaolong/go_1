@@ -14,12 +14,11 @@ import (
 )
 
 func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env) {
-
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
 	userRepository := repository_impl.NewUserRepository(entClient)
 
 	tokenUsecase := usecase_impl.NewTokenUsecase(env)
-	authMiddleware := middlewares.NewAuthMiddleware(tokenUsecase)
+	authMiddleware := middlewares.NewAuthMiddleware(tokenUsecase, userRepository)
 
 	articleUsecase := usecase_impl.NewArticleUsecase(articleRepository)
 	articleHandler := handler.NewArticleHandler(articleUsecase)

@@ -260,7 +260,7 @@ func (_c *ArticlesCreate) createSpec() (*Articles, *sqlgraph.CreateSpec) {
 	)
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(articles.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = value
+		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(articles.FieldTitle, field.TypeString, value)

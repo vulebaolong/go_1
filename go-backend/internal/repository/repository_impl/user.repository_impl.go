@@ -43,3 +43,10 @@ func (a *userRepository) FindUserByEmail(ctx context.Context, email string) (*en
 	entQuery = entQuery.Where(users.EmailEQ(email))
 	return entQuery.Only(ctx)
 }
+
+// FindUserById implements [repository.UserRepository].
+func (a *userRepository) FindUserById(ctx context.Context, id int) (*ent.Users, error) {
+	entQuery := a.entClient.Users.Query()
+	entQuery = entQuery.Where(users.IDEQ(id))
+	return entQuery.Only(ctx)
+}

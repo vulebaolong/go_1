@@ -24,6 +24,7 @@ func (d *authDelivery) RegisterRouter(apiGroup *gin.RouterGroup) {
 	{
 		authGroup.POST("register", d.authHandler.Register)
 		authGroup.POST("login", d.authHandler.Login)
+		authGroup.POST("refresh-token", d.authHandler.RefreshToken)
 
 		authGroup.Use(d.authMiddleware.Protect)
 		authGroup.GET("get-info", d.authHandler.GetInfo)

@@ -10,3 +10,13 @@ type AuthLoginReq struct {
 	Email    string `json:"email" binding:"email,required"`
 	Password string `json:"password" binding:"required"`
 }
+
+type AuthLoginReturn struct {
+	AccessToken  string
+	RefreshToken string
+}
+
+type AuthRefreshTokenReturn struct {
+	AccessToken  string
+	RefreshToken string
+}

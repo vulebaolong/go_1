@@ -17,6 +17,9 @@ type Env struct {
 
 	ExpiresAtAccessToken time.Duration
 	SecretAccessToken    string
+
+	ExpiresAtRefreshToken time.Duration
+	SecretRefreshToken    string
 }
 
 func New() *Env {
@@ -28,10 +31,15 @@ func New() *Env {
 
 	databaseUrl := os.Getenv("DATABASE_URL")
 
+	// ACCESS TOKEN
 	expiresAtAccessTokenString := os.Getenv("EXPIRES_AT_ACCESS_TOKEN")
 	expiresAtAccessToken := getDuration(expiresAtAccessTokenString)
-
 	secretAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
+
+	// REFRESH TOKEN
+	expiresAtRefreshTokenString := os.Getenv("EXPIRES_AT_REFRESH_TOKEN")
+	expiresAtRefreshToken := getDuration(expiresAtRefreshTokenString)
+	secretRefreshToken := os.Getenv("SECRET_REFRESH_TOKEN")
 
 	fmt.Println("isProduction", isProduction)
 	fmt.Println("port", port)
@@ -41,13 +49,18 @@ func New() *Env {
 	fmt.Println("expiresAtAccessTokenString", expiresAtAccessTokenString)
 	fmt.Println("secretAccessToken", secretAccessToken)
 
+	fmt.Println("expiresAtRefreshTokenString", expiresAtRefreshTokenString)
+	fmt.Println("secretRefreshToken", secretRefreshToken)
+
 	return &Env{
-		IsProduction:         isProduction,
-		Port:                 port,
-		Host:                 host,
-		DatabaseUrl:          databaseUrl,
-		ExpiresAtAccessToken: expiresAtAccessToken,
-		SecretAccessToken:    secretAccessToken,
+		IsProduction:          isProduction,
+		Port:                  port,
+		Host:                  host,
+		DatabaseUrl:           databaseUrl,
+		ExpiresAtAccessToken:  expiresAtAccessToken,
+		SecretAccessToken:     secretAccessToken,
+		ExpiresAtRefreshToken: expiresAtRefreshToken,
+		SecretRefreshToken:    secretRefreshToken,
 	}
 }
 

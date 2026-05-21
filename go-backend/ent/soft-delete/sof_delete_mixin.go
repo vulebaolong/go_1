@@ -23,8 +23,7 @@ type SoftDeleteMixin struct {
 // Fields of the SoftDeleteMixin.
 func (SoftDeleteMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Time("deleted_at").
-			Optional(),
+		field.Time("deleted_at").Optional().Nillable().StructTag(`json:"deletedAt"`),
 	}
 }
 

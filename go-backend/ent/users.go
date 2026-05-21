@@ -18,7 +18,7 @@ type Users struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	DeletedAt *time.Time `json:"deletedAt"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// FullName holds the value of the "full_name" field.
@@ -106,7 +106,8 @@ func (_m *Users) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				_m.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case users.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -207,8 +208,10 @@ func (_m *Users) String() string {
 	var builder strings.Builder
 	builder.WriteString("Users(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("deleted_at=")
-	builder.WriteString(_m.DeletedAt.Format(time.ANSIC))
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)

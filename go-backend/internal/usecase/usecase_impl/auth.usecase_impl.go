@@ -8,6 +8,7 @@ import (
 	"go-backend/internal/repository"
 	"go-backend/internal/usecase"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -56,7 +57,7 @@ func (a *authUsecase) Register(ctx context.Context, body dto.AuthRegisterReq) (a
 }
 
 // Login implements [usecase.AuthUsecase].
-func (a *authUsecase) Login(ctx context.Context, body dto.AuthLoginReq) (*string, error) {
+func (a *authUsecase) Login(ctx context.Context, body dto.AuthLoginReq) (*dto.AuthLoginReturn, error) {
 	user, err := a.userRepository.FindUserByEmail(ctx, body.Email)
 	if err != nil {
 		return nil, response.NewBadRequestException(err.Error())
@@ -72,15 +73,61 @@ func (a *authUsecase) Login(ctx context.Context, body dto.AuthLoginReq) (*string
 	}
 
 	// trả về accessToken và refreshToken
-	token, err := a.tokenUsecase.CreateAccessToken(user.ID)
+	accessToken, err := a.tokenUsecase.CreateAccessToken(user.ID)
 	if err != nil {
 		return nil, response.NewBadRequestException(err.Error())
 	}
 
-	return &token, nil
+	refreshToken, err := a.tokenUsecase.CreateRefreshToken(user.ID)
+	if err != nil {
+		return nil, response.NewBadRequestException(err.Error())
+	}
+
+	return &dto.AuthLoginReturn{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
 
 // GetInfo implements [usecase.AuthUsecase].
-func (a *authUsecase) GetInfo(ctx context.Context) (*ent.Users, error) {
-	return nil, nil
+func (a *authUsecase) GetInfo(ctx context.Context, user *ent.Users) (*ent.Users, error) {
+	return user, nil
+}
+
+// RefreshToken implements [usecase.AuthUsecase].
+func (a *authUsecase) RefreshToken(ctx context.Context, accessToken string, refreshToken string) (*dto.AuthRefreshTokenReturn, error) {
+	// jwt.WithoutClaimsValidation(): không kiểm tra hết hạn
+	claimAccessToken, err := a.tokenUsecase.VerifyAccessToken(accessToken, jwt.WithoutClaimsValidation())
+	if err != nil {
+		return nil, response.NewUnauthorizedException(err.Error())
+	}
+
+	claimRefreshToken, err := a.tokenUsecase.VerifyRefreshToken(refreshToken)
+	if err != nil {
+		return nil, response.NewUnauthorizedException(err.Error())
+	}
+
+	if claimAccessToken.UserId != claimRefreshToken.UserId {
+		return nil, response.NewUnauthorizedException("2 Token không cùng 1 user")
+	}
+
+	user, err := a.userRepository.FindUserById(ctx, claimAccessToken.UserId)
+	if err != nil {
+		return nil, response.NewUnauthorizedException(err.Error())
+	}
+
+	accessTokenNew, err := a.tokenUsecase.CreateAccessToken(user.ID)
+	if err != nil {
+		return nil, response.NewUnauthorizedException(err.Error())
+	}
+
+	refreshTokenNew, err := a.tokenUsecase.CreateRefreshToken(user.ID)
+	if err != nil {
+		return nil, response.NewUnauthorizedException(err.Error())
+	}
+
+	return &dto.AuthRefreshTokenReturn{
+		AccessToken:  accessTokenNew,
+		RefreshToken: refreshTokenNew,
+	}, nil
 }

@@ -20,7 +20,7 @@ type Orders struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
+	DeletedAt *time.Time `json:"deletedAt"`
 	// UserID holds the value of the "user_id" field.
 	UserID int `json:"user_id,omitempty"`
 	// FoodID holds the value of the "food_id" field.
@@ -102,7 +102,8 @@ func (_m *Orders) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				_m.DeletedAt = value.Time
+				_m.DeletedAt = new(time.Time)
+				*_m.DeletedAt = value.Time
 			}
 		case orders.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -174,8 +175,10 @@ func (_m *Orders) String() string {
 	var builder strings.Builder
 	builder.WriteString("Orders(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("deleted_at=")
-	builder.WriteString(_m.DeletedAt.Format(time.ANSIC))
+	if v := _m.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))

@@ -334,7 +334,7 @@ func (_q *OrdersQuery) WithUsers(opts ...func(*UsersQuery)) *OrdersQuery {
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		DeletedAt time.Time `json:"deletedAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -357,7 +357,7 @@ func (_q *OrdersQuery) GroupBy(field string, fields ...string) *OrdersGroupBy {
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		DeletedAt time.Time `json:"deletedAt"`
 //	}
 //
 //	client.Orders.Query().

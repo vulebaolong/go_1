@@ -191,7 +191,7 @@ func (_c *FoodsCreate) createSpec() (*Foods, *sqlgraph.CreateSpec) {
 	)
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(foods.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = value
+		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(foods.FieldName, field.TypeString, value)

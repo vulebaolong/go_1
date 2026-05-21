@@ -172,7 +172,7 @@ func (m *ArticlesMutation) DeletedAt() (r time.Time, exists bool) {
 // OldDeletedAt returns the old "deleted_at" field's value of the Articles entity.
 // If the Articles object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ArticlesMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+func (m *ArticlesMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
@@ -1122,7 +1122,7 @@ func (m *FoodsMutation) DeletedAt() (r time.Time, exists bool) {
 // OldDeletedAt returns the old "deleted_at" field's value of the Foods entity.
 // If the Foods object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FoodsMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+func (m *FoodsMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
@@ -1797,7 +1797,7 @@ func (m *OrdersMutation) DeletedAt() (r time.Time, exists bool) {
 // OldDeletedAt returns the old "deleted_at" field's value of the Orders entity.
 // If the Orders object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *OrdersMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+func (m *OrdersMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
@@ -2498,7 +2498,7 @@ func (m *UsersMutation) DeletedAt() (r time.Time, exists bool) {
 // OldDeletedAt returns the old "deleted_at" field's value of the Users entity.
 // If the Users object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UsersMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+func (m *UsersMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}

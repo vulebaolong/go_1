@@ -299,7 +299,7 @@ func (_q *FoodsQuery) WithOrders(opts ...func(*OrdersQuery)) *FoodsQuery {
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		DeletedAt time.Time `json:"deletedAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -322,7 +322,7 @@ func (_q *FoodsQuery) GroupBy(field string, fields ...string) *FoodsGroupBy {
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		DeletedAt time.Time `json:"deletedAt"`
 //	}
 //
 //	client.Foods.Query().

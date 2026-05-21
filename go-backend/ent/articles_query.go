@@ -298,7 +298,7 @@ func (_q *ArticlesQuery) WithUsers(opts ...func(*UsersQuery)) *ArticlesQuery {
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		DeletedAt time.Time `json:"deletedAt"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -321,7 +321,7 @@ func (_q *ArticlesQuery) GroupBy(field string, fields ...string) *ArticlesGroupB
 // Example:
 //
 //	var v []struct {
-//		DeletedAt time.Time `json:"deleted_at,omitempty"`
+//		DeletedAt time.Time `json:"deletedAt"`
 //	}
 //
 //	client.Articles.Query().

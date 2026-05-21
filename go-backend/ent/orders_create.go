@@ -200,7 +200,7 @@ func (_c *OrdersCreate) createSpec() (*Orders, *sqlgraph.CreateSpec) {
 	)
 	if value, ok := _c.mutation.DeletedAt(); ok {
 		_spec.SetField(orders.FieldDeletedAt, field.TypeTime, value)
-		_node.DeletedAt = value
+		_node.DeletedAt = &value
 	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(orders.FieldCreatedAt, field.TypeTime, value)
