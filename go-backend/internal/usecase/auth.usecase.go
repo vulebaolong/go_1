@@ -11,4 +11,5 @@ type AuthUsecase interface {
 	Login(ctx context.Context, body dto.AuthLoginReq) (*dto.AuthLoginReturn, error)
 	GetInfo(ctx context.Context, user *ent.Users) (*ent.Users, error)
 	RefreshToken(ctx context.Context, accessToken string, refreshToken string) (*dto.AuthRefreshTokenReturn, error)
+	GoogleLogin(ctx context.Context) (any, error)
 }

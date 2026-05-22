@@ -131,3 +131,8 @@ func (a *authUsecase) RefreshToken(ctx context.Context, accessToken string, refr
 		RefreshToken: refreshTokenNew,
 	}, nil
 }
+
+// GoogleLogin implements [usecase.AuthUsecase].
+func (a *authUsecase) GoogleLogin(ctx context.Context) (any, error) {
+	return "GoogleLogin", nil
+}

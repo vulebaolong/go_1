@@ -123,6 +123,16 @@ func (a *AuthHandler) RefreshToken(ctx *gin.Context) {
 	response.Success(result, "", 0, ctx)
 }
 
+func (a *AuthHandler) GoogleLogin(ctx *gin.Context) {
+	result, err := a.authUsecase.GoogleLogin(ctx.Request.Context())
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	response.Success(result, "", 0, ctx)
+}
+
 func setTokenCookie(ctx *gin.Context, accessToken string, refreshToken string) {
 	ctx.SetSameSite(http.SameSiteLaxMode)
 	ctx.SetCookie(
@@ -132,7 +142,7 @@ func setTokenCookie(ctx *gin.Context, accessToken string, refreshToken string) {
 		"/",
 		"",
 		false,
-		false,
+		true,
 	)
 	ctx.SetCookie(
 		"refreshToken",
@@ -141,6 +151,6 @@ func setTokenCookie(ctx *gin.Context, accessToken string, refreshToken string) {
 		"/",
 		"",
 		false,
-		false,
+		true,
 	)
 }
