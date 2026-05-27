@@ -20,6 +20,12 @@ type Env struct {
 
 	ExpiresAtRefreshToken time.Duration
 	SecretRefreshToken    string
+
+	GoogleClientId     string
+	GoogleClientSecret string
+	GoogleRedirectUrl  string
+
+	DomainFe string
 }
 
 func New() *Env {
@@ -41,6 +47,13 @@ func New() *Env {
 	expiresAtRefreshToken := getDuration(expiresAtRefreshTokenString)
 	secretRefreshToken := os.Getenv("SECRET_REFRESH_TOKEN")
 
+	// GOOGLE
+	googleClientId := os.Getenv("GOOGLE_CLIENT_ID")
+	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	googleRedirectUrl := os.Getenv("GOOGLE_REDIRECT_URL")
+
+	domainFe := os.Getenv("DOMAIN_FE")
+
 	fmt.Println("isProduction", isProduction)
 	fmt.Println("port", port)
 	fmt.Println("host", host)
@@ -52,6 +65,12 @@ func New() *Env {
 	fmt.Println("expiresAtRefreshTokenString", expiresAtRefreshTokenString)
 	fmt.Println("secretRefreshToken", secretRefreshToken)
 
+	fmt.Println("googleClientId", googleClientId)
+	fmt.Println("googleClientSecret", googleClientSecret)
+	fmt.Println("googleRedirectUrl", googleRedirectUrl)
+
+	fmt.Println("domainFe", domainFe)
+
 	return &Env{
 		IsProduction:          isProduction,
 		Port:                  port,
@@ -61,6 +80,10 @@ func New() *Env {
 		SecretAccessToken:     secretAccessToken,
 		ExpiresAtRefreshToken: expiresAtRefreshToken,
 		SecretRefreshToken:    secretRefreshToken,
+		GoogleClientId:        googleClientId,
+		GoogleClientSecret:    googleClientSecret,
+		GoogleRedirectUrl:     googleRedirectUrl,
+		DomainFe:              domainFe,
 	}
 }
 

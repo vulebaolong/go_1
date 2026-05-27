@@ -2,7 +2,12 @@ package usecase_impl
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/hex"
+	"errors"
+	"fmt"
 	"go-backend/ent"
+	"go-backend/internal/common/env"
 	"go-backend/internal/common/response"
 	"go-backend/internal/dto"
 	"go-backend/internal/repository"
@@ -10,17 +15,33 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/idtoken"
 )
 
 type authUsecase struct {
 	userRepository repository.UserRepository
 	tokenUsecase   usecase.TokenUsecase
+	oauth2Config   *oauth2.Config
 }
 
-func NewAuthUsecase(userRepository repository.UserRepository, tokenUsecase usecase.TokenUsecase) usecase.AuthUsecase {
+func NewAuthUsecase(userRepository repository.UserRepository, tokenUsecase usecase.TokenUsecase, env *env.Env) usecase.AuthUsecase {
 	return &authUsecase{
 		userRepository: userRepository,
 		tokenUsecase:   tokenUsecase,
+		oauth2Config: &oauth2.Config{
+			ClientID:     env.GoogleClientId,
+			ClientSecret: env.GoogleClientSecret,
+			RedirectURL:  env.GoogleRedirectUrl,
+			Scopes: []string{
+				"openid",
+				"email",
+				"profile",
+			},
+			Endpoint: google.Endpoint,
+		},
 	}
 }
 
@@ -133,6 +154,97 @@ func (a *authUsecase) RefreshToken(ctx context.Context, accessToken string, refr
 }
 
 // GoogleLogin implements [usecase.AuthUsecase].
-func (a *authUsecase) GoogleLogin(ctx context.Context) (any, error) {
-	return "GoogleLogin", nil
+func (a *authUsecase) GoogleLogin(ctx context.Context) (*dto.AuthGoogleLoginReturn, error) {
+	bytes := make([]byte, 10)
+	fmt.Println(bytes)
+
+	rand.Read(bytes)
+	fmt.Println(bytes)
+
+	state := hex.EncodeToString(bytes)
+	fmt.Println(state)
+
+	url := a.oauth2Config.AuthCodeURL(state)
+	fmt.Println("url", url)
+
+	return &dto.AuthGoogleLoginReturn{
+		State: state,
+		Url:   url,
+	}, nil
+}
+
+// GoogleCallback implements [usecase.AuthUsecase].
+func (a *authUsecase) GoogleCallback(ctx context.Context, input dto.AuthGoogleCallbackInput) (*dto.AuthLoginReturn, error) {
+
+	fmt.Println(input.Code)
+	fmt.Println(input.StateCookie)
+	fmt.Println(input.StateGoogle)
+
+	if input.StateCookie != input.StateGoogle {
+		return nil, errors.New("state invalid")
+	}
+
+	token, err := a.oauth2Config.Exchange(ctx, input.Code)
+	if err != nil {
+		return nil, err
+	}
+
+	id_token := token.Extra("id_token").(string)
+
+	idtokenPayload, err := idtoken.Validate(ctx, id_token, a.oauth2Config.ClientID)
+	if err != nil {
+		return nil, err
+	}
+
+	email := idtokenPayload.Claims["email"].(string)
+	email_verified := idtokenPayload.Claims["email_verified"].(bool)
+	name := idtokenPayload.Claims["name"].(string)
+	picture := idtokenPayload.Claims["picture"].(string)
+	googleId := idtokenPayload.Claims["sub"].(string)
+
+	// fmt.Println("token", token)
+	// fmt.Printf("type = %T value %v", id_token, id_token)
+	// fmt.Printf("\n\n type = %T value %+v \n\n", idtokenPayload, idtokenPayload)
+	fmt.Println("email", email)
+	fmt.Println("email_verified", email_verified)
+	fmt.Println("name", name)
+	fmt.Println("picture", picture)
+	fmt.Println("googleId", googleId)
+
+	if !email_verified {
+		return nil, errors.New("email not verify")
+	}
+
+	userExists, err := a.userRepository.FindUserByEmail(ctx, email)
+	if err != nil && !ent.IsNotFound(err) {
+		return nil, err
+	}
+
+	if userExists == nil {
+		input := dto.AuthCreateUserForGoogleReq{
+			Email:    email,
+			FullName: name,
+			Avatar:   picture,
+			GoogleId: googleId,
+		}
+		userExists, err = a.userRepository.CreateUserForGoogle(ctx, input)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	accessToken, err := a.tokenUsecase.CreateAccessToken(userExists.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := a.tokenUsecase.CreateRefreshToken(userExists.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.AuthLoginReturn{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }

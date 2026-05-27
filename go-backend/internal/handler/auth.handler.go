@@ -3,6 +3,8 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"go-backend/internal/common/constant"
+	"go-backend/internal/common/env"
 	"go-backend/internal/common/helpers"
 	"go-backend/internal/common/response"
 	"go-backend/internal/dto"
@@ -15,11 +17,13 @@ import (
 
 type AuthHandler struct {
 	authUsecase usecase.AuthUsecase
+	env         *env.Env
 }
 
-func NewAuthHandler(authUsecase usecase.AuthUsecase) *AuthHandler {
+func NewAuthHandler(authUsecase usecase.AuthUsecase, env *env.Env) *AuthHandler {
 	return &AuthHandler{
 		authUsecase: authUsecase,
+		env:         env,
 	}
 }
 
@@ -82,7 +86,10 @@ func (a *AuthHandler) GetInfo(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(result, "", 0, ctx)
+	response.Success(
+		map[string]any{
+			"user": result,
+		}, "", 0, ctx)
 }
 
 func (a *AuthHandler) RefreshToken(ctx *gin.Context) {
@@ -126,11 +133,66 @@ func (a *AuthHandler) RefreshToken(ctx *gin.Context) {
 func (a *AuthHandler) GoogleLogin(ctx *gin.Context) {
 	result, err := a.authUsecase.GoogleLogin(ctx.Request.Context())
 	if err != nil {
-		ctx.Error(err)
+		ctx.Redirect(http.StatusFound, a.env.DomainFe+"/login?error="+err.Error())
 		return
 	}
 
-	response.Success(result, "", 0, ctx)
+	ctx.SetSameSite(http.SameSiteLaxMode)
+	ctx.SetCookie(
+		constant.GOOGLE_OAUTH_STATE,
+		result.State,
+		60,
+		"/",
+		"",
+		false,
+		true,
+	)
+
+	ctx.Redirect(http.StatusFound, result.Url)
+}
+
+func (a *AuthHandler) GoogleCallback(ctx *gin.Context) {
+	stateGoogle := ctx.Query("state")
+	if stateGoogle == "" {
+		errMess := "state empty"
+		fmt.Println(errMess)
+		ctx.Redirect(http.StatusFound, a.env.DomainFe+"/login?error="+errMess)
+		return
+	}
+
+	stateCookie, err := ctx.Cookie(constant.GOOGLE_OAUTH_STATE)
+	if err != nil {
+		errMess := err.Error()
+		fmt.Println(errMess)
+		ctx.Redirect(http.StatusFound, a.env.DomainFe+"/login?error="+errMess)
+		return
+	}
+
+	code := ctx.Query("code")
+	if code == "" {
+		errMess := "code empty"
+		fmt.Println(errMess)
+		ctx.Redirect(http.StatusFound, a.env.DomainFe+"/login?error="+errMess)
+		return
+	}
+
+	input := dto.AuthGoogleCallbackInput{
+		StateGoogle: stateCookie,
+		StateCookie: stateGoogle,
+		Code:        code,
+	}
+
+	result, err := a.authUsecase.GoogleCallback(ctx.Request.Context(), input)
+	if err != nil {
+		errMess := err.Error()
+		fmt.Println(errMess)
+		ctx.Redirect(http.StatusFound, a.env.DomainFe+"/login?error="+errMess)
+		return
+	}
+
+	setTokenCookie(ctx, result.AccessToken, result.RefreshToken)
+
+	ctx.Redirect(http.StatusFound, a.env.DomainFe)
 }
 
 func setTokenCookie(ctx *gin.Context, accessToken string, refreshToken string) {

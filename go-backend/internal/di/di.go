@@ -28,10 +28,14 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	demoHandler := handler.NewDemoHandler(demoUsecase)
 	demoDelivery := delivery.NewDemoDelivery(demoHandler)
 
-	authUsecase := usecase_impl.NewAuthUsecase(userRepository, tokenUsecase)
-	authHandler := handler.NewAuthHandler(authUsecase)
+	authUsecase := usecase_impl.NewAuthUsecase(userRepository, tokenUsecase, env)
+	authHandler := handler.NewAuthHandler(authUsecase, env)
 	authDelivery := delivery.NewAuthDelivery(authHandler, authMiddleware)
 
-	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery)
+	userUsecase := usecase_impl.NewUserUsecase(userRepository)
+	userHandler := handler.NewUserHandler(userUsecase)
+	userDelivery := delivery.NewUserDelivery(userHandler, authMiddleware)
+
+	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery)
 	rootDelivery.RegisterRouter(ginEngine)
 }

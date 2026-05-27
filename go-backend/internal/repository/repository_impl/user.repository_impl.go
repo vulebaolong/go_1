@@ -50,3 +50,14 @@ func (a *userRepository) FindUserById(ctx context.Context, id int) (*ent.Users, 
 	entQuery = entQuery.Where(users.IDEQ(id))
 	return entQuery.Only(ctx)
 }
+
+// CreateUserForGoogle implements [repository.UserRepository].
+func (a *userRepository) CreateUserForGoogle(ctx context.Context, body dto.AuthCreateUserForGoogleReq) (*ent.Users, error) {
+	entCreate := a.entClient.Users.Create()
+	entCreate = entCreate.SetEmail(body.Email)
+	entCreate = entCreate.SetFullName(body.FullName)
+	entCreate = entCreate.SetAvatar(body.Avatar)
+	entCreate = entCreate.SetGoogleID(body.GoogleId)
+
+	return entCreate.Save(ctx)
+}
