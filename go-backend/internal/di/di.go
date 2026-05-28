@@ -4,6 +4,7 @@ import (
 	"go-backend/ent"
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/middlewares"
+	storage_impl "go-backend/internal/common/storage/impl"
 	"go-backend/internal/delivery"
 	"go-backend/internal/handler"
 	"go-backend/internal/repository/repository_impl"
@@ -16,6 +17,9 @@ import (
 func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env) {
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
 	userRepository := repository_impl.NewUserRepository(entClient)
+
+	localFileStorage := storage_impl.NewLocalFileStorage("public")
+	cloudinaryFileStorage := storage_impl.NewCloudinaryStorage(env)
 
 	tokenUsecase := usecase_impl.NewTokenUsecase(env)
 	authMiddleware := middlewares.NewAuthMiddleware(tokenUsecase, userRepository)
@@ -32,7 +36,7 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	authHandler := handler.NewAuthHandler(authUsecase, env)
 	authDelivery := delivery.NewAuthDelivery(authHandler, authMiddleware)
 
-	userUsecase := usecase_impl.NewUserUsecase(userRepository)
+	userUsecase := usecase_impl.NewUserUsecase(userRepository, localFileStorage, cloudinaryFileStorage)
 	userHandler := handler.NewUserHandler(userUsecase)
 	userDelivery := delivery.NewUserDelivery(userHandler, authMiddleware)
 

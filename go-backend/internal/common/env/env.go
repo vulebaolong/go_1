@@ -26,6 +26,8 @@ type Env struct {
 	GoogleRedirectUrl  string
 
 	DomainFe string
+
+	CloudinaryUrl string
 }
 
 func New() *Env {
@@ -54,6 +56,8 @@ func New() *Env {
 
 	domainFe := os.Getenv("DOMAIN_FE")
 
+	cloudinaryUrl := os.Getenv("CLOUDINARY_URL")
+
 	fmt.Println("isProduction", isProduction)
 	fmt.Println("port", port)
 	fmt.Println("host", host)
@@ -71,6 +75,8 @@ func New() *Env {
 
 	fmt.Println("domainFe", domainFe)
 
+	fmt.Println("cloudinaryUrl", cloudinaryUrl)
+
 	return &Env{
 		IsProduction:          isProduction,
 		Port:                  port,
@@ -84,6 +90,7 @@ func New() *Env {
 		GoogleClientSecret:    googleClientSecret,
 		GoogleRedirectUrl:     googleRedirectUrl,
 		DomainFe:              domainFe,
+		CloudinaryUrl:         cloudinaryUrl,
 	}
 }
 

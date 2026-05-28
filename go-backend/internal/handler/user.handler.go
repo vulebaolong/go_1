@@ -1,12 +1,9 @@
 package handler
 
 import (
-	"fmt"
+	"go-backend/internal/common/helpers"
 	"go-backend/internal/common/response"
 	"go-backend/internal/usecase"
-	"path/filepath"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,22 +28,19 @@ func (a *UserHandler) FindAll(ctx *gin.Context) {
 	response.Success(result, "", 0, ctx)
 }
 func (a *UserHandler) AvatarLocal(ctx *gin.Context) {
+	user, err := helpers.GetUser(ctx)
+	if err != nil {
+		ctx.Error(response.NewBadRequestException(err.Error()))
+		return
+	}
+
 	fileHeader, err := ctx.FormFile("avatar")
+	if err != nil {
+		ctx.Error(response.NewBadRequestException(err.Error()))
+		return
+	}
 
-	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-
-	fileName := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
-
-	fmt.Println("Filename", fileHeader.Filename)
-	fmt.Println("ext", ext)
-	fmt.Println("fileName", fileName)
-
-	fullPath := filepath.Join("public", "images", fileName)
-	fmt.Println("fullPath", fullPath)
-
-	ctx.SaveUploadedFile(fileHeader, fullPath)
-
-	result, err := a.userUsecase.AvatarLocal(ctx.Request.Context())
+	result, err := a.userUsecase.AvatarLocal(ctx.Request.Context(), fileHeader, user)
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -55,7 +49,19 @@ func (a *UserHandler) AvatarLocal(ctx *gin.Context) {
 	response.Success(result, "", 0, ctx)
 }
 func (a *UserHandler) AvatarCloud(ctx *gin.Context) {
-	result, err := a.userUsecase.AvatarCloud(ctx.Request.Context())
+	user, err := helpers.GetUser(ctx)
+	if err != nil {
+		ctx.Error(response.NewBadRequestException(err.Error()))
+		return
+	}
+
+	fileHeader, err := ctx.FormFile("avatar")
+	if err != nil {
+		ctx.Error(response.NewBadRequestException(err.Error()))
+		return
+	}
+
+	result, err := a.userUsecase.AvatarCloud(ctx.Request.Context(), fileHeader, user)
 	if err != nil {
 		ctx.Error(err)
 		return

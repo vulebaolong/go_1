@@ -61,3 +61,10 @@ func (a *userRepository) CreateUserForGoogle(ctx context.Context, body dto.AuthC
 
 	return entCreate.Save(ctx)
 }
+
+// UploadAvatarById implements [repository.UserRepository].
+func (a *userRepository) UpdateAvatarById(ctx context.Context, id int, avatar string) (*ent.Users, error) {
+	entUpdate := a.entClient.Users.UpdateOneID(id)
+	entUpdate = entUpdate.SetAvatar(avatar)
+	return entUpdate.Save(ctx)
+}

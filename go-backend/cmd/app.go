@@ -8,6 +8,7 @@ import (
 	"go-backend/internal/common/gorm_client"
 	"go-backend/internal/common/middlewares"
 	"go-backend/internal/common/response"
+	"go-backend/internal/common/swagger"
 	dependency "go-backend/internal/di"
 
 	"github.com/gin-contrib/cors"
@@ -32,6 +33,13 @@ func NewApp() *App {
 		ctx.Abort()
 	}))
 
+	// relativePath: bí dánh dùng ở web, thay thế cho tên folder
+	// root: folder thật ở may/server sẽ được truy cập khi dùng bí danh
+	// ginEngine.Static("go-backend", "") // lộ code
+	// ginEngine.Static("docx", "./public/docx") // example
+	// ginEngine.Static("xlxx", "./public/xlxx") // example
+	ginEngine.Static("images", "./public/images")
+
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{"http://localhost:3000", "https://google.com"}
 	ginEngine.Use(cors.New(corsConfig))
@@ -46,6 +54,8 @@ func NewApp() *App {
 	// 		return
 	// 	}
 	// })
+
+	swagger.Start(ginEngine)
 
 	// ginEngine.Use(middlewares.A)
 	// ginEngine.Use(middlewares.B)
