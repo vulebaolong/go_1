@@ -18,3 +18,8 @@ type ArticleFindAllInput struct {
 	pagination.Query
 	ArticleFindAllFilters
 }
+
+type ArticleFindAllReq struct {
+	pagination.Query
+	Filters string `query:"filters" example:"{ \"id\":1,\"content\":\"string\",\"views\":55}"`
+}

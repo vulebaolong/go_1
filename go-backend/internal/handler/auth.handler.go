@@ -131,6 +131,7 @@ func (a *AuthHandler) RefreshToken(ctx *gin.Context) {
 }
 
 func (a *AuthHandler) GoogleLogin(ctx *gin.Context) {
+
 	result, err := a.authUsecase.GoogleLogin(ctx.Request.Context())
 	if err != nil {
 		ctx.Redirect(http.StatusFound, a.env.DomainFe+"/login?error="+err.Error())
@@ -147,6 +148,18 @@ func (a *AuthHandler) GoogleLogin(ctx *gin.Context) {
 		false,
 		true,
 	)
+	redirect := ctx.Query("redirect")
+	if redirect != "" {
+		ctx.SetCookie(
+			constant.GOOGLE_OAUTH_REDIRECT,
+			redirect,
+			60,
+			"/",
+			"",
+			false,
+			true,
+		)
+	}
 
 	ctx.Redirect(http.StatusFound, result.Url)
 }
@@ -191,6 +204,12 @@ func (a *AuthHandler) GoogleCallback(ctx *gin.Context) {
 	}
 
 	setTokenCookie(ctx, result.AccessToken, result.RefreshToken)
+
+	redirectUrl, _ := ctx.Cookie(constant.GOOGLE_OAUTH_REDIRECT)
+	if redirectUrl != "" {
+		ctx.Redirect(http.StatusFound, redirectUrl)
+		return
+	}
 
 	ctx.Redirect(http.StatusFound, a.env.DomainFe)
 }

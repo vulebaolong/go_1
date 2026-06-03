@@ -45,7 +45,7 @@ func (a *articleUsecase) FindAll(ctx context.Context, input dto.ArticleFindAllIn
 	// totalPage: tổng số trang totalItem / pageSize
 	totalPage := float64(totalItem) / float64(input.PageSize)
 
-	result := pagination.PaginationRes{
+	result := pagination.PaginationRes[any]{
 		Items:     data,
 		Page:      input.Page,
 		PageSize:  input.PageSize,

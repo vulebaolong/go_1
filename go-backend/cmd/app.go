@@ -55,7 +55,7 @@ func NewApp() *App {
 	// 	}
 	// })
 
-	swagger.Start(ginEngine)
+	swagger.Start(ginEngine, env)
 
 	// ginEngine.Use(middlewares.A)
 	// ginEngine.Use(middlewares.B)

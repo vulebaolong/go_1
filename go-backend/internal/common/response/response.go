@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type SuccessFormat struct {
+type SuccessFormat[T any] struct {
 	Status     string `json:"status"`
 	StatusCode int    `json:"statusCode"`
 	Message    string `json:"message"`
-	Data       any    `json:"data"`
+	Data       T      `json:"data"`
 	Doc        string `json:"doc"`
 }
 
@@ -22,7 +22,7 @@ func Success(data any, message string, code int, ctx *gin.Context) {
 		message = http.StatusText(code)
 	}
 
-	reuslt := SuccessFormat{
+	reuslt := SuccessFormat[any]{
 		Status:     "success",
 		StatusCode: code,
 		Message:    message,

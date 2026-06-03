@@ -26,6 +26,7 @@ type Env struct {
 	GoogleRedirectUrl  string
 
 	DomainFe string
+	DomainBe string
 
 	CloudinaryUrl string
 }
@@ -55,6 +56,7 @@ func New() *Env {
 	googleRedirectUrl := os.Getenv("GOOGLE_REDIRECT_URL")
 
 	domainFe := os.Getenv("DOMAIN_FE")
+	domainBe := os.Getenv("DOMAIN_BE")
 
 	cloudinaryUrl := os.Getenv("CLOUDINARY_URL")
 
@@ -74,6 +76,7 @@ func New() *Env {
 	fmt.Println("googleRedirectUrl", googleRedirectUrl)
 
 	fmt.Println("domainFe", domainFe)
+	fmt.Println("domainBe", domainBe)
 
 	fmt.Println("cloudinaryUrl", cloudinaryUrl)
 
@@ -91,6 +94,7 @@ func New() *Env {
 		GoogleRedirectUrl:     googleRedirectUrl,
 		DomainFe:              domainFe,
 		CloudinaryUrl:         cloudinaryUrl,
+		DomainBe:              domainBe,
 	}
 }
 

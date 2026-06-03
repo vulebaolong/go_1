@@ -3,13 +3,13 @@ package pagination
 import "strconv"
 
 type Query struct {
-	Page     int
-	PageSize int
+	Page     int `query:"page" description:"số trang" example:"1"`
+	PageSize int `query:"pageSize" description:"số lượng phần tử trong 1 trang" example:"3"`
 	Offset   int
 }
 
-type PaginationRes struct {
-	Items     any `json:"items"`
+type PaginationRes[T any] struct {
+	Items     T   `json:"items"`
 	Page      int `json:"page"`
 	PageSize  int `json:"pageSize"`
 	TotalItem int `json:"totalItem"`
