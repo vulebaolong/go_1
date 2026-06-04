@@ -37,6 +37,12 @@ const (
 	EdgeArticles = "Articles"
 	// EdgeOrders holds the string denoting the orders edge name in mutations.
 	EdgeOrders = "Orders"
+	// EdgeChatGroups holds the string denoting the chatgroups edge name in mutations.
+	EdgeChatGroups = "ChatGroups"
+	// EdgeChatGroupMembers holds the string denoting the chatgroupmembers edge name in mutations.
+	EdgeChatGroupMembers = "ChatGroupMembers"
+	// EdgeChatMessages holds the string denoting the chatmessages edge name in mutations.
+	EdgeChatMessages = "ChatMessages"
 	// Table holds the table name of the users in the database.
 	Table = "users"
 	// ArticlesTable is the table that holds the Articles relation/edge.
@@ -53,6 +59,27 @@ const (
 	OrdersInverseTable = "orders"
 	// OrdersColumn is the table column denoting the Orders relation/edge.
 	OrdersColumn = "user_id"
+	// ChatGroupsTable is the table that holds the ChatGroups relation/edge.
+	ChatGroupsTable = "chat_groups"
+	// ChatGroupsInverseTable is the table name for the ChatGroups entity.
+	// It exists in this package in order to avoid circular dependency with the "chatgroups" package.
+	ChatGroupsInverseTable = "chat_groups"
+	// ChatGroupsColumn is the table column denoting the ChatGroups relation/edge.
+	ChatGroupsColumn = "user_id"
+	// ChatGroupMembersTable is the table that holds the ChatGroupMembers relation/edge.
+	ChatGroupMembersTable = "chat_group_members"
+	// ChatGroupMembersInverseTable is the table name for the ChatGroupMembers entity.
+	// It exists in this package in order to avoid circular dependency with the "chatgroupmembers" package.
+	ChatGroupMembersInverseTable = "chat_group_members"
+	// ChatGroupMembersColumn is the table column denoting the ChatGroupMembers relation/edge.
+	ChatGroupMembersColumn = "user_id"
+	// ChatMessagesTable is the table that holds the ChatMessages relation/edge.
+	ChatMessagesTable = "chat_messages"
+	// ChatMessagesInverseTable is the table name for the ChatMessages entity.
+	// It exists in this package in order to avoid circular dependency with the "chatmessages" package.
+	ChatMessagesInverseTable = "chat_messages"
+	// ChatMessagesColumn is the table column denoting the ChatMessages relation/edge.
+	ChatMessagesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for users fields.
@@ -175,6 +202,48 @@ func ByOrders(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newOrdersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByChatGroupsCount orders the results by ChatGroups count.
+func ByChatGroupsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newChatGroupsStep(), opts...)
+	}
+}
+
+// ByChatGroups orders the results by ChatGroups terms.
+func ByChatGroups(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChatGroupsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByChatGroupMembersCount orders the results by ChatGroupMembers count.
+func ByChatGroupMembersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newChatGroupMembersStep(), opts...)
+	}
+}
+
+// ByChatGroupMembers orders the results by ChatGroupMembers terms.
+func ByChatGroupMembers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChatGroupMembersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByChatMessagesCount orders the results by ChatMessages count.
+func ByChatMessagesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newChatMessagesStep(), opts...)
+	}
+}
+
+// ByChatMessages orders the results by ChatMessages terms.
+func ByChatMessages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChatMessagesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newArticlesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -187,5 +256,26 @@ func newOrdersStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(OrdersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
+	)
+}
+func newChatGroupsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ChatGroupsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ChatGroupsTable, ChatGroupsColumn),
+	)
+}
+func newChatGroupMembersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ChatGroupMembersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ChatGroupMembersTable, ChatGroupMembersColumn),
+	)
+}
+func newChatMessagesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ChatMessagesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ChatMessagesTable, ChatMessagesColumn),
 	)
 }

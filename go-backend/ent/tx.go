@@ -16,6 +16,12 @@ type Tx struct {
 	config
 	// Articles is the client for interacting with the Articles builders.
 	Articles *ArticlesClient
+	// ChatGroupMembers is the client for interacting with the ChatGroupMembers builders.
+	ChatGroupMembers *ChatGroupMembersClient
+	// ChatGroups is the client for interacting with the ChatGroups builders.
+	ChatGroups *ChatGroupsClient
+	// ChatMessages is the client for interacting with the ChatMessages builders.
+	ChatMessages *ChatMessagesClient
 	// Foods is the client for interacting with the Foods builders.
 	Foods *FoodsClient
 	// Orders is the client for interacting with the Orders builders.
@@ -154,6 +160,9 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Articles = NewArticlesClient(tx.config)
+	tx.ChatGroupMembers = NewChatGroupMembersClient(tx.config)
+	tx.ChatGroups = NewChatGroupsClient(tx.config)
+	tx.ChatMessages = NewChatMessagesClient(tx.config)
 	tx.Foods = NewFoodsClient(tx.config)
 	tx.Orders = NewOrdersClient(tx.config)
 	tx.Users = NewUsersClient(tx.config)

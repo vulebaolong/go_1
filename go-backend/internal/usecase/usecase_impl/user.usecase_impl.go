@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"go-backend/ent"
+	"go-backend/internal/common/pagination"
 	"go-backend/internal/common/response"
 	"go-backend/internal/common/storage"
 	"go-backend/internal/dto"
 	"go-backend/internal/repository"
 	"go-backend/internal/usecase"
+	"math"
 	"mime/multipart"
 	"path/filepath"
 )
@@ -28,8 +30,35 @@ func NewUserUsecase(userRepository repository.UserRepository, localFileStorage s
 }
 
 // FindAll implements [usecase.UserUsecase].
-func (a *userUsecase) FindAll(ctx context.Context) (any, error) {
-	return "FindAll", nil
+func (a *userUsecase) FindAll(ctx context.Context, input dto.UserFindAllInput) (any, error) {
+	data, err := a.userRepository.GetAll(ctx, input.Query, input.UserFindAllFilters)
+	if err != nil {
+		return nil, response.NewBadRequestException(err.Error())
+	}
+
+	// totalItem: tổng số lượng item
+	totalItem, err := a.userRepository.Count(ctx, input.UserFindAllFilters)
+	if err != nil {
+		return nil, response.NewBadRequestException(err.Error())
+	}
+
+	// totalPage: tổng số trang totalItem / pageSize
+	totalPage := float64(totalItem) / float64(input.PageSize)
+
+	result := pagination.PaginationRes[any]{
+		Items:     data,
+		Page:      input.Page,
+		PageSize:  input.PageSize,
+		TotalItem: totalItem,
+		TotalPage: int(math.Ceil(totalPage)),
+	}
+
+	return result, nil
+}
+
+// FindOne implements [usecase.UserUsecase].
+func (a *userUsecase) FindOne(ctx context.Context, id int) (any, error) {
+	return a.userRepository.FindUserById(ctx, id)
 }
 
 // AvatarLocal implements [usecase.UserUsecase].

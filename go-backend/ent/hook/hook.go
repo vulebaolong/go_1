@@ -20,6 +20,42 @@ func (f ArticlesFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ArticlesMutation", m)
 }
 
+// The ChatGroupMembersFunc type is an adapter to allow the use of ordinary
+// function as ChatGroupMembers mutator.
+type ChatGroupMembersFunc func(context.Context, *ent.ChatGroupMembersMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ChatGroupMembersFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ChatGroupMembersMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ChatGroupMembersMutation", m)
+}
+
+// The ChatGroupsFunc type is an adapter to allow the use of ordinary
+// function as ChatGroups mutator.
+type ChatGroupsFunc func(context.Context, *ent.ChatGroupsMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ChatGroupsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ChatGroupsMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ChatGroupsMutation", m)
+}
+
+// The ChatMessagesFunc type is an adapter to allow the use of ordinary
+// function as ChatMessages mutator.
+type ChatMessagesFunc func(context.Context, *ent.ChatMessagesMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ChatMessagesFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ChatMessagesMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ChatMessagesMutation", m)
+}
+
 // The FoodsFunc type is an adapter to allow the use of ordinary
 // function as Foods mutator.
 type FoodsFunc func(context.Context, *ent.FoodsMutation) (ent.Value, error)

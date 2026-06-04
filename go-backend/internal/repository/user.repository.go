@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"go-backend/ent"
+	"go-backend/internal/common/pagination"
 	"go-backend/internal/dto"
 )
 
@@ -13,4 +14,6 @@ type UserRepository interface {
 	FindUserByEmail(ctx context.Context, email string) (*ent.Users, error)
 	FindUserById(ctx context.Context, id int) (*ent.Users, error)
 	UpdateAvatarById(ctx context.Context, id int, avatar string) (*ent.Users, error)
+	GetAll(ctx context.Context, query pagination.Query, filters dto.UserFindAllFilters) (any, error)
+	Count(ctx context.Context, filters dto.UserFindAllFilters) (int, error)
 }

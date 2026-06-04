@@ -32,6 +32,9 @@ func (Users) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("Articles", Articles.Type),
 		edge.To("Orders", Orders.Type),
+		edge.To("ChatGroups", ChatGroups.Type),
+		edge.To("ChatGroupMembers", ChatGroupMembers.Type),
+		edge.To("ChatMessages", ChatMessages.Type),
 	}
 }
 

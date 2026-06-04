@@ -24,6 +24,7 @@ func (d *userDelivery) RegisterRouter(apiGroup *gin.RouterGroup) {
 	{
 		userGroup.Use(d.authMiddleware.Protect)
 		userGroup.GET("", d.userHandler.FindAll)
+		userGroup.GET(":id", d.userHandler.FindOne)
 		userGroup.POST("avatar-local", d.userHandler.AvatarLocal)
 		userGroup.POST("avatar-cloud", d.userHandler.AvatarCloud)
 	}

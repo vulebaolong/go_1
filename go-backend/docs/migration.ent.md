@@ -17,7 +17,7 @@ make ent
 
 atlas migrate apply \
   --dir "file://ent/migrate/migrations" \
-  --url "mysql://root:12345@localhost:3307/go-back-prod"
+  --url "mysql://root:12345@localhost:3307/go-backend"
 
 # DB đã có sẵn
     - tạo init
@@ -25,6 +25,6 @@ atlas migrate apply \
 
 atlas migrate set <version> \
   --dir "file://ent/migrate/migrations" \
-  --url "mysql://root:12345@localhost:3307/go-back-prod"
+  --url "mysql://root:12345@localhost:3307/go-backend"
     
     

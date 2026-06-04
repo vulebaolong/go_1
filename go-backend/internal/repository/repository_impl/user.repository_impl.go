@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-backend/ent"
 	"go-backend/ent/users"
+	"go-backend/internal/common/pagination"
 	"go-backend/internal/dto"
 	"go-backend/internal/repository"
 )
@@ -67,4 +68,30 @@ func (a *userRepository) UpdateAvatarById(ctx context.Context, id int, avatar st
 	entUpdate := a.entClient.Users.UpdateOneID(id)
 	entUpdate = entUpdate.SetAvatar(avatar)
 	return entUpdate.Save(ctx)
+}
+
+// GetAll implements [repository.UserRepository].
+func (a *userRepository) GetAll(ctx context.Context, query pagination.Query, filters dto.UserFindAllFilters) (any, error) {
+	entQuery := a.entClient.Users.Query()
+
+	handlerFilterUser(filters, entQuery)
+
+	entQuery = entQuery.Limit(query.PageSize)
+	entQuery = entQuery.Offset(query.Offset)
+	return entQuery.All(ctx)
+}
+
+// Count implements [repository.UserRepository].
+func (a *userRepository) Count(ctx context.Context, filters dto.UserFindAllFilters) (int, error) {
+	entQuery := a.entClient.Users.Query()
+
+	handlerFilterUser(filters, entQuery)
+
+	return entQuery.Count(ctx)
+}
+
+func handlerFilterUser(filters dto.UserFindAllFilters, entQuery *ent.UsersQuery) {
+	if filters.Name != "" {
+		entQuery = entQuery.Where(users.FullNameContainsFold(filters.Name))
+	}
 }

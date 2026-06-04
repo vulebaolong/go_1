@@ -35,6 +35,88 @@ var (
 			},
 		},
 	}
+	// ChatGroupMembersColumns holds the columns for the "chat_group_members" table.
+	ChatGroupMembersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "chat_group_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// ChatGroupMembersTable holds the schema information for the "chat_group_members" table.
+	ChatGroupMembersTable = &schema.Table{
+		Name:       "chat_group_members",
+		Columns:    ChatGroupMembersColumns,
+		PrimaryKey: []*schema.Column{ChatGroupMembersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "chat_group_members_chat_groups_ChatGroupMembers",
+				Columns:    []*schema.Column{ChatGroupMembersColumns[4]},
+				RefColumns: []*schema.Column{ChatGroupsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "chat_group_members_users_ChatGroupMembers",
+				Columns:    []*schema.Column{ChatGroupMembersColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// ChatGroupsColumns holds the columns for the "chat_groups" table.
+	ChatGroupsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// ChatGroupsTable holds the schema information for the "chat_groups" table.
+	ChatGroupsTable = &schema.Table{
+		Name:       "chat_groups",
+		Columns:    ChatGroupsColumns,
+		PrimaryKey: []*schema.Column{ChatGroupsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "chat_groups_users_ChatGroups",
+				Columns:    []*schema.Column{ChatGroupsColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// ChatMessagesColumns holds the columns for the "chat_messages" table.
+	ChatMessagesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "message_text", Type: field.TypeString, Size: 2147483647},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "chat_group_id", Type: field.TypeInt},
+		{Name: "user_id", Type: field.TypeInt},
+	}
+	// ChatMessagesTable holds the schema information for the "chat_messages" table.
+	ChatMessagesTable = &schema.Table{
+		Name:       "chat_messages",
+		Columns:    ChatMessagesColumns,
+		PrimaryKey: []*schema.Column{ChatMessagesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "chat_messages_chat_groups_ChatMessages",
+				Columns:    []*schema.Column{ChatMessagesColumns[5]},
+				RefColumns: []*schema.Column{ChatGroupsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "chat_messages_users_ChatMessages",
+				Columns:    []*schema.Column{ChatMessagesColumns[6]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// FoodsColumns holds the columns for the "foods" table.
 	FoodsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -101,6 +183,9 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		ArticlesTable,
+		ChatGroupMembersTable,
+		ChatGroupsTable,
+		ChatMessagesTable,
 		FoodsTable,
 		OrdersTable,
 		UsersTable,
@@ -109,6 +194,11 @@ var (
 
 func init() {
 	ArticlesTable.ForeignKeys[0].RefTable = UsersTable
+	ChatGroupMembersTable.ForeignKeys[0].RefTable = ChatGroupsTable
+	ChatGroupMembersTable.ForeignKeys[1].RefTable = UsersTable
+	ChatGroupsTable.ForeignKeys[0].RefTable = UsersTable
+	ChatMessagesTable.ForeignKeys[0].RefTable = ChatGroupsTable
+	ChatMessagesTable.ForeignKeys[1].RefTable = UsersTable
 	OrdersTable.ForeignKeys[0].RefTable = FoodsTable
 	OrdersTable.ForeignKeys[1].RefTable = UsersTable
 }

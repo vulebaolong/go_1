@@ -31,9 +31,9 @@ func New(env *env.Env) *ent.Client {
 	fmt.Println("✅ [ENT] Connection To MySQL Successfully")
 
 	// Run the auto migration tool.
-	if err := client.Schema.Create(ctx); err != nil {
-		log.Fatalf("❌ [ENT] failed creating schema resources: %v", err)
-	}
+	// if err := client.Schema.Create(ctx); err != nil {
+	// 	log.Fatalf("❌ [ENT] failed creating schema resources: %v", err)
+	// }
 
 	return client
 }

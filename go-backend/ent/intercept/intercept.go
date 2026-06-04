@@ -8,6 +8,9 @@ import (
 
 	"go-backend/ent"
 	"go-backend/ent/articles"
+	"go-backend/ent/chatgroupmembers"
+	"go-backend/ent/chatgroups"
+	"go-backend/ent/chatmessages"
 	"go-backend/ent/foods"
 	"go-backend/ent/orders"
 	"go-backend/ent/predicate"
@@ -99,6 +102,87 @@ func (f TraverseArticles) Traverse(ctx context.Context, q ent.Query) error {
 	return fmt.Errorf("unexpected query type %T. expect *ent.ArticlesQuery", q)
 }
 
+// The ChatGroupMembersFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ChatGroupMembersFunc func(context.Context, *ent.ChatGroupMembersQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ChatGroupMembersFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ChatGroupMembersQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ChatGroupMembersQuery", q)
+}
+
+// The TraverseChatGroupMembers type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseChatGroupMembers func(context.Context, *ent.ChatGroupMembersQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseChatGroupMembers) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseChatGroupMembers) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ChatGroupMembersQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ChatGroupMembersQuery", q)
+}
+
+// The ChatGroupsFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ChatGroupsFunc func(context.Context, *ent.ChatGroupsQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ChatGroupsFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ChatGroupsQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ChatGroupsQuery", q)
+}
+
+// The TraverseChatGroups type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseChatGroups func(context.Context, *ent.ChatGroupsQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseChatGroups) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseChatGroups) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ChatGroupsQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ChatGroupsQuery", q)
+}
+
+// The ChatMessagesFunc type is an adapter to allow the use of ordinary function as a Querier.
+type ChatMessagesFunc func(context.Context, *ent.ChatMessagesQuery) (ent.Value, error)
+
+// Query calls f(ctx, q).
+func (f ChatMessagesFunc) Query(ctx context.Context, q ent.Query) (ent.Value, error) {
+	if q, ok := q.(*ent.ChatMessagesQuery); ok {
+		return f(ctx, q)
+	}
+	return nil, fmt.Errorf("unexpected query type %T. expect *ent.ChatMessagesQuery", q)
+}
+
+// The TraverseChatMessages type is an adapter to allow the use of ordinary function as Traverser.
+type TraverseChatMessages func(context.Context, *ent.ChatMessagesQuery) error
+
+// Intercept is a dummy implementation of Intercept that returns the next Querier in the pipeline.
+func (f TraverseChatMessages) Intercept(next ent.Querier) ent.Querier {
+	return next
+}
+
+// Traverse calls f(ctx, q).
+func (f TraverseChatMessages) Traverse(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.ChatMessagesQuery); ok {
+		return f(ctx, q)
+	}
+	return fmt.Errorf("unexpected query type %T. expect *ent.ChatMessagesQuery", q)
+}
+
 // The FoodsFunc type is an adapter to allow the use of ordinary function as a Querier.
 type FoodsFunc func(context.Context, *ent.FoodsQuery) (ent.Value, error)
 
@@ -185,6 +269,12 @@ func NewQuery(q ent.Query) (Query, error) {
 	switch q := q.(type) {
 	case *ent.ArticlesQuery:
 		return &query[*ent.ArticlesQuery, predicate.Articles, articles.OrderOption]{typ: ent.TypeArticles, tq: q}, nil
+	case *ent.ChatGroupMembersQuery:
+		return &query[*ent.ChatGroupMembersQuery, predicate.ChatGroupMembers, chatgroupmembers.OrderOption]{typ: ent.TypeChatGroupMembers, tq: q}, nil
+	case *ent.ChatGroupsQuery:
+		return &query[*ent.ChatGroupsQuery, predicate.ChatGroups, chatgroups.OrderOption]{typ: ent.TypeChatGroups, tq: q}, nil
+	case *ent.ChatMessagesQuery:
+		return &query[*ent.ChatMessagesQuery, predicate.ChatMessages, chatmessages.OrderOption]{typ: ent.TypeChatMessages, tq: q}, nil
 	case *ent.FoodsQuery:
 		return &query[*ent.FoodsQuery, predicate.Foods, foods.OrderOption]{typ: ent.TypeFoods, tq: q}, nil
 	case *ent.OrdersQuery:

@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"go-backend/ent/articles"
+	"go-backend/ent/chatgroupmembers"
+	"go-backend/ent/chatgroups"
+	"go-backend/ent/chatmessages"
 	"go-backend/ent/foods"
 	"go-backend/ent/orders"
 	"go-backend/ent/users"
@@ -76,10 +79,13 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			articles.Table: articles.ValidColumn,
-			foods.Table:    foods.ValidColumn,
-			orders.Table:   orders.ValidColumn,
-			users.Table:    users.ValidColumn,
+			articles.Table:         articles.ValidColumn,
+			chatgroupmembers.Table: chatgroupmembers.ValidColumn,
+			chatgroups.Table:       chatgroups.ValidColumn,
+			chatmessages.Table:     chatmessages.ValidColumn,
+			foods.Table:            foods.ValidColumn,
+			orders.Table:           orders.ValidColumn,
+			users.Table:            users.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

@@ -4,6 +4,9 @@ package runtime
 
 import (
 	"go-backend/ent/articles"
+	"go-backend/ent/chatgroupmembers"
+	"go-backend/ent/chatgroups"
+	"go-backend/ent/chatmessages"
 	"go-backend/ent/foods"
 	"go-backend/ent/orders"
 	"go-backend/ent/schema"
@@ -45,6 +48,60 @@ func init() {
 	articles.DefaultUpdatedAt = articlesDescUpdatedAt.Default.(func() time.Time)
 	// articles.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	articles.UpdateDefaultUpdatedAt = articlesDescUpdatedAt.UpdateDefault.(func() time.Time)
+	chatgroupmembersMixin := schema.ChatGroupMembers{}.Mixin()
+	chatgroupmembersMixinHooks0 := chatgroupmembersMixin[0].Hooks()
+	chatgroupmembers.Hooks[0] = chatgroupmembersMixinHooks0[0]
+	chatgroupmembers.Hooks[1] = chatgroupmembersMixinHooks0[1]
+	chatgroupmembersMixinInters0 := chatgroupmembersMixin[0].Interceptors()
+	chatgroupmembers.Interceptors[0] = chatgroupmembersMixinInters0[0]
+	chatgroupmembersFields := schema.ChatGroupMembers{}.Fields()
+	_ = chatgroupmembersFields
+	// chatgroupmembersDescCreatedAt is the schema descriptor for created_at field.
+	chatgroupmembersDescCreatedAt := chatgroupmembersFields[2].Descriptor()
+	// chatgroupmembers.DefaultCreatedAt holds the default value on creation for the created_at field.
+	chatgroupmembers.DefaultCreatedAt = chatgroupmembersDescCreatedAt.Default.(func() time.Time)
+	// chatgroupmembersDescUpdatedAt is the schema descriptor for updated_at field.
+	chatgroupmembersDescUpdatedAt := chatgroupmembersFields[3].Descriptor()
+	// chatgroupmembers.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	chatgroupmembers.DefaultUpdatedAt = chatgroupmembersDescUpdatedAt.Default.(func() time.Time)
+	// chatgroupmembers.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	chatgroupmembers.UpdateDefaultUpdatedAt = chatgroupmembersDescUpdatedAt.UpdateDefault.(func() time.Time)
+	chatgroupsMixin := schema.ChatGroups{}.Mixin()
+	chatgroupsMixinHooks0 := chatgroupsMixin[0].Hooks()
+	chatgroups.Hooks[0] = chatgroupsMixinHooks0[0]
+	chatgroups.Hooks[1] = chatgroupsMixinHooks0[1]
+	chatgroupsMixinInters0 := chatgroupsMixin[0].Interceptors()
+	chatgroups.Interceptors[0] = chatgroupsMixinInters0[0]
+	chatgroupsFields := schema.ChatGroups{}.Fields()
+	_ = chatgroupsFields
+	// chatgroupsDescCreatedAt is the schema descriptor for created_at field.
+	chatgroupsDescCreatedAt := chatgroupsFields[2].Descriptor()
+	// chatgroups.DefaultCreatedAt holds the default value on creation for the created_at field.
+	chatgroups.DefaultCreatedAt = chatgroupsDescCreatedAt.Default.(func() time.Time)
+	// chatgroupsDescUpdatedAt is the schema descriptor for updated_at field.
+	chatgroupsDescUpdatedAt := chatgroupsFields[3].Descriptor()
+	// chatgroups.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	chatgroups.DefaultUpdatedAt = chatgroupsDescUpdatedAt.Default.(func() time.Time)
+	// chatgroups.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	chatgroups.UpdateDefaultUpdatedAt = chatgroupsDescUpdatedAt.UpdateDefault.(func() time.Time)
+	chatmessagesMixin := schema.ChatMessages{}.Mixin()
+	chatmessagesMixinHooks0 := chatmessagesMixin[0].Hooks()
+	chatmessages.Hooks[0] = chatmessagesMixinHooks0[0]
+	chatmessages.Hooks[1] = chatmessagesMixinHooks0[1]
+	chatmessagesMixinInters0 := chatmessagesMixin[0].Interceptors()
+	chatmessages.Interceptors[0] = chatmessagesMixinInters0[0]
+	chatmessagesFields := schema.ChatMessages{}.Fields()
+	_ = chatmessagesFields
+	// chatmessagesDescCreatedAt is the schema descriptor for created_at field.
+	chatmessagesDescCreatedAt := chatmessagesFields[3].Descriptor()
+	// chatmessages.DefaultCreatedAt holds the default value on creation for the created_at field.
+	chatmessages.DefaultCreatedAt = chatmessagesDescCreatedAt.Default.(func() time.Time)
+	// chatmessagesDescUpdatedAt is the schema descriptor for updated_at field.
+	chatmessagesDescUpdatedAt := chatmessagesFields[4].Descriptor()
+	// chatmessages.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	chatmessages.DefaultUpdatedAt = chatmessagesDescUpdatedAt.Default.(func() time.Time)
+	// chatmessages.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	chatmessages.UpdateDefaultUpdatedAt = chatmessagesDescUpdatedAt.UpdateDefault.(func() time.Time)
 	foodsMixin := schema.Foods{}.Mixin()
 	foodsMixinHooks0 := foodsMixin[0].Hooks()
 	foods.Hooks[0] = foodsMixinHooks0[0]

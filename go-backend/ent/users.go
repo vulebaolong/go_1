@@ -47,9 +47,15 @@ type UsersEdges struct {
 	Articles []*Articles `json:"Articles,omitempty"`
 	// Orders holds the value of the Orders edge.
 	Orders []*Orders `json:"Orders,omitempty"`
+	// ChatGroups holds the value of the ChatGroups edge.
+	ChatGroups []*ChatGroups `json:"ChatGroups,omitempty"`
+	// ChatGroupMembers holds the value of the ChatGroupMembers edge.
+	ChatGroupMembers []*ChatGroupMembers `json:"ChatGroupMembers,omitempty"`
+	// ChatMessages holds the value of the ChatMessages edge.
+	ChatMessages []*ChatMessages `json:"ChatMessages,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [5]bool
 }
 
 // ArticlesOrErr returns the Articles value or an error if the edge
@@ -68,6 +74,33 @@ func (e UsersEdges) OrdersOrErr() ([]*Orders, error) {
 		return e.Orders, nil
 	}
 	return nil, &NotLoadedError{edge: "Orders"}
+}
+
+// ChatGroupsOrErr returns the ChatGroups value or an error if the edge
+// was not loaded in eager-loading.
+func (e UsersEdges) ChatGroupsOrErr() ([]*ChatGroups, error) {
+	if e.loadedTypes[2] {
+		return e.ChatGroups, nil
+	}
+	return nil, &NotLoadedError{edge: "ChatGroups"}
+}
+
+// ChatGroupMembersOrErr returns the ChatGroupMembers value or an error if the edge
+// was not loaded in eager-loading.
+func (e UsersEdges) ChatGroupMembersOrErr() ([]*ChatGroupMembers, error) {
+	if e.loadedTypes[3] {
+		return e.ChatGroupMembers, nil
+	}
+	return nil, &NotLoadedError{edge: "ChatGroupMembers"}
+}
+
+// ChatMessagesOrErr returns the ChatMessages value or an error if the edge
+// was not loaded in eager-loading.
+func (e UsersEdges) ChatMessagesOrErr() ([]*ChatMessages, error) {
+	if e.loadedTypes[4] {
+		return e.ChatMessages, nil
+	}
+	return nil, &NotLoadedError{edge: "ChatMessages"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -183,6 +216,21 @@ func (_m *Users) QueryArticles() *ArticlesQuery {
 // QueryOrders queries the "Orders" edge of the Users entity.
 func (_m *Users) QueryOrders() *OrdersQuery {
 	return NewUsersClient(_m.config).QueryOrders(_m)
+}
+
+// QueryChatGroups queries the "ChatGroups" edge of the Users entity.
+func (_m *Users) QueryChatGroups() *ChatGroupsQuery {
+	return NewUsersClient(_m.config).QueryChatGroups(_m)
+}
+
+// QueryChatGroupMembers queries the "ChatGroupMembers" edge of the Users entity.
+func (_m *Users) QueryChatGroupMembers() *ChatGroupMembersQuery {
+	return NewUsersClient(_m.config).QueryChatGroupMembers(_m)
+}
+
+// QueryChatMessages queries the "ChatMessages" edge of the Users entity.
+func (_m *Users) QueryChatMessages() *ChatMessagesQuery {
+	return NewUsersClient(_m.config).QueryChatMessages(_m)
 }
 
 // Update returns a builder for updating this Users.

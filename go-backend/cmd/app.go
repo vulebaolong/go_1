@@ -62,7 +62,7 @@ func NewApp() *App {
 	// ginEngine.Use(middlewares.C)
 	entClient := ent_client.New(env)
 	gormClient := gorm_client.New(env)
-	dependency.Injection(ginEngine, entClient, gormClient, env)
+	dependency.Injection(ginEngine, entClient, gormClient, env, corsConfig.AllowOrigins)
 
 	return &App{
 		ginEngine: ginEngine,

@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"go-backend/ent/articles"
+	"go-backend/ent/chatgroupmembers"
+	"go-backend/ent/chatgroups"
+	"go-backend/ent/chatmessages"
 	"go-backend/ent/orders"
 	"go-backend/ent/users"
 	"time"
@@ -170,6 +173,51 @@ func (_c *UsersCreate) AddOrders(v ...*Orders) *UsersCreate {
 	return _c.AddOrderIDs(ids...)
 }
 
+// AddChatGroupIDs adds the "ChatGroups" edge to the ChatGroups entity by IDs.
+func (_c *UsersCreate) AddChatGroupIDs(ids ...int) *UsersCreate {
+	_c.mutation.AddChatGroupIDs(ids...)
+	return _c
+}
+
+// AddChatGroups adds the "ChatGroups" edges to the ChatGroups entity.
+func (_c *UsersCreate) AddChatGroups(v ...*ChatGroups) *UsersCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddChatGroupIDs(ids...)
+}
+
+// AddChatGroupMemberIDs adds the "ChatGroupMembers" edge to the ChatGroupMembers entity by IDs.
+func (_c *UsersCreate) AddChatGroupMemberIDs(ids ...int) *UsersCreate {
+	_c.mutation.AddChatGroupMemberIDs(ids...)
+	return _c
+}
+
+// AddChatGroupMembers adds the "ChatGroupMembers" edges to the ChatGroupMembers entity.
+func (_c *UsersCreate) AddChatGroupMembers(v ...*ChatGroupMembers) *UsersCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddChatGroupMemberIDs(ids...)
+}
+
+// AddChatMessageIDs adds the "ChatMessages" edge to the ChatMessages entity by IDs.
+func (_c *UsersCreate) AddChatMessageIDs(ids ...int) *UsersCreate {
+	_c.mutation.AddChatMessageIDs(ids...)
+	return _c
+}
+
+// AddChatMessages adds the "ChatMessages" edges to the ChatMessages entity.
+func (_c *UsersCreate) AddChatMessages(v ...*ChatMessages) *UsersCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddChatMessageIDs(ids...)
+}
+
 // Mutation returns the UsersMutation object of the builder.
 func (_c *UsersCreate) Mutation() *UsersMutation {
 	return _c.mutation
@@ -322,6 +370,54 @@ func (_c *UsersCreate) createSpec() (*Users, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(orders.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ChatGroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   users.ChatGroupsTable,
+			Columns: []string{users.ChatGroupsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(chatgroups.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ChatGroupMembersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   users.ChatGroupMembersTable,
+			Columns: []string{users.ChatGroupMembersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(chatgroupmembers.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ChatMessagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   users.ChatMessagesTable,
+			Columns: []string{users.ChatMessagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(chatmessages.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

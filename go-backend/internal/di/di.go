@@ -4,6 +4,7 @@ import (
 	"go-backend/ent"
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/middlewares"
+	"go-backend/internal/common/socket"
 	storage_impl "go-backend/internal/common/storage/impl"
 	"go-backend/internal/delivery"
 	"go-backend/internal/handler"
@@ -14,7 +15,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env) {
+func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env, allowOrigins []string) {
+	chatUsecase := usecase_impl.NewChatUsecase()
+	chatHandler := handler.NewChatHandler(chatUsecase)
+
+	socket := socket.NewSocket(chatHandler)
+	socket.Start(ginEngine, allowOrigins)
+
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
 	userRepository := repository_impl.NewUserRepository(entClient)
 

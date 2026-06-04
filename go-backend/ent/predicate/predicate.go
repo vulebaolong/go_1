@@ -9,6 +9,15 @@ import (
 // Articles is the predicate function for articles builders.
 type Articles func(*sql.Selector)
 
+// ChatGroupMembers is the predicate function for chatgroupmembers builders.
+type ChatGroupMembers func(*sql.Selector)
+
+// ChatGroups is the predicate function for chatgroups builders.
+type ChatGroups func(*sql.Selector)
+
+// ChatMessages is the predicate function for chatmessages builders.
+type ChatMessages func(*sql.Selector)
+
 // Foods is the predicate function for foods builders.
 type Foods func(*sql.Selector)
 
