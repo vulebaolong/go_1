@@ -16,19 +16,24 @@ import (
 )
 
 func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env, allowOrigins []string) {
-	chatUsecase := usecase_impl.NewChatUsecase()
-	chatHandler := handler.NewChatHandler(chatUsecase)
+	tokenUsecase := usecase_impl.NewTokenUsecase(env)
 
-	socket := socket.NewSocket(chatHandler)
-	socket.Start(ginEngine, allowOrigins)
-
+	// repository
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
 	userRepository := repository_impl.NewUserRepository(entClient)
+	chatGroupRepository := repository_impl.NewChatGroupRepository(entClient)
+	chatGroupMemberRepository := repository_impl.NewChatGroupMemberRepository(entClient)
+	unitOfWorkRepository := repository_impl.NewUnitOfWorkRepository(entClient)
 
 	localFileStorage := storage_impl.NewLocalFileStorage("public")
 	cloudinaryFileStorage := storage_impl.NewCloudinaryStorage(env)
 
-	tokenUsecase := usecase_impl.NewTokenUsecase(env)
+	// Socket
+	chatUsecase := usecase_impl.NewChatUsecase(tokenUsecase, userRepository, chatGroupRepository, chatGroupMemberRepository, unitOfWorkRepository)
+	chatHandler := handler.NewChatHandler(chatUsecase)
+	socket := socket.NewSocket(chatHandler)
+	socket.Start(ginEngine, allowOrigins)
+
 	authMiddleware := middlewares.NewAuthMiddleware(tokenUsecase, userRepository)
 
 	articleUsecase := usecase_impl.NewArticleUsecase(articleRepository)
@@ -47,6 +52,10 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	userHandler := handler.NewUserHandler(userUsecase)
 	userDelivery := delivery.NewUserDelivery(userHandler, authMiddleware)
 
-	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery)
+	chatGroupUsecase := usecase_impl.NewChatGroupUsecase(chatGroupRepository)
+	chatGroupHandler := handler.NewChatGroupHandler(chatGroupUsecase)
+	chatGroupDelivery := delivery.NewChatGroupDelivery(chatGroupHandler)
+
+	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery)
 	rootDelivery.RegisterRouter(ginEngine)
 }

@@ -34,11 +34,14 @@ func (s *socket) Start(ginEngine *gin.Engine, allowOrigins []string) {
 		fmt.Printf("connected: %s\n", socket.Id())
 
 		socket.On("CREATE_ROOM", func(args ...any) {
-			// handler
-			s.chatHandler.CreateGroup()
-			fmt.Printf("received: %v\n", args)
-			socket.Emit("message", args...)
+			s.chatHandler.CreateGroup(args...)
 		})
+
+		socket.On("JOIN_ROOM", func(args ...any) {
+			s.chatHandler.JoinGroup(socket, args...)
+		})
+
+		// SEND_MESSAGE
 
 		socket.On("disconnect", func(args ...any) {
 			fmt.Printf("disconnected: %s\n", socket.Id())
