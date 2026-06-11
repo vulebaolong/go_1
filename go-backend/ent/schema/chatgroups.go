@@ -17,8 +17,8 @@ type ChatGroups struct {
 // Fields of the ChatGroups.
 func (ChatGroups) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("user_id").StructTag("userId"),
-		field.String("name").Optional().Nillable().StructTag("name"),
+		field.Int("user_id").StructTag(`json:"userId"`),
+		field.String("name").Optional().Nillable().StructTag(`json:"name"`),
 
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

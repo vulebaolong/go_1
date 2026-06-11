@@ -58,5 +58,4 @@ func (a *AuthMiddleware) Protect(ctx *gin.Context) {
 	}
 
 	ctx.Set("user", user)
-
 }

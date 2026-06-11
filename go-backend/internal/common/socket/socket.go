@@ -33,15 +33,36 @@ func (s *socket) Start(ginEngine *gin.Engine, allowOrigins []string) {
 		socket := args[0].(*server.Socket)
 		fmt.Printf("connected: %s\n", socket.Id())
 
+		fmt.Printf("%+v", io.Sockets().Sockets())
+
 		socket.On("CREATE_ROOM", func(args ...any) {
 			s.chatHandler.CreateGroup(args...)
 		})
 
 		socket.On("JOIN_ROOM", func(args ...any) {
 			s.chatHandler.JoinGroup(socket, args...)
+
+			// list ra các socketid đang có trong room
+			io.In(server.Room("chat:1")).FetchSockets()(func(sockets []*server.RemoteSocket, err error) {
+				if err != nil {
+					fmt.Println("err")
+					return
+				}
+
+				socketIds := make([]string, 0, len(sockets))
+
+				for _, s := range sockets {
+					socketIds = append(socketIds, string(s.Id()))
+				}
+
+				fmt.Println("socketIds", socketIds)
+			})
 		})
 
 		// SEND_MESSAGE
+		socket.On("SEND_MESSAGE", func(args ...any) {
+			s.chatHandler.SendMessage(io, args...)
+		})
 
 		socket.On("disconnect", func(args ...any) {
 			fmt.Printf("disconnected: %s\n", socket.Id())

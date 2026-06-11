@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-backend/internal/dto"
 	"go-backend/internal/usecase"
+	"time"
 
 	server "github.com/zishang520/socket.io/servers/socket/v3"
 )
@@ -83,7 +84,7 @@ func (c *ChatHandler) JoinGroup(socket *server.Socket, args ...any) {
 		return
 	}
 
-	socket.Join(server.Room(fmt.Sprintf("chat:%d", chatGroupExists.ID)))
+	socket.Join(createNameRoom(chatGroupExists.ID))
 	fmt.Println("socket.Rooms()", socket.Rooms())
 	res := dto.ChatRes{
 		Status:  "success",
@@ -91,4 +92,42 @@ func (c *ChatHandler) JoinGroup(socket *server.Socket, args ...any) {
 		Data:    nil,
 	}
 	ack([]interface{}{res}, nil)
+}
+
+func (c *ChatHandler) SendMessage(io *server.Server, args ...any) {
+	payload := args[0].(map[string]interface{})
+	accessToken := payload["accessToken"].(string)
+	chatGroupId := int(payload["chatGroupId"].(float64))
+	message := payload["message"].(string)
+	ack := args[1].(func([]interface{}, error))
+
+	fmt.Println("payload", payload)
+	fmt.Println("accessToken", accessToken)
+	fmt.Println("chatGroupId", chatGroupId)
+	fmt.Println("message", message)
+
+	createdAt := time.Now().UTC()
+
+	result, err := c.chatUsecase.SendMessage(context.Background(), accessToken, chatGroupId, message, createdAt)
+	if err != nil {
+		res := dto.ChatRes{
+			Status:  "error",
+			Message: err.Error(),
+			Data:    nil,
+		}
+		ack([]interface{}{res}, nil)
+		return
+	}
+
+	io.To(createNameRoom(result.ChatGroupId)).Emit("SEND_MESSAGE", map[string]any{
+		"messageText": result.MessageText,
+		"userId":      result.UserId,
+		"chatGroupId": result.ChatGroupId,
+		"createdAt":   createdAt.Format(time.RFC3339),
+	})
+
+}
+
+func createNameRoom(chatGroupId int) server.Room {
+	return server.Room(fmt.Sprintf("chat:%d", chatGroupId))
 }

@@ -29,6 +29,9 @@ type Env struct {
 	DomainBe string
 
 	CloudinaryUrl string
+
+	RedisAddr string
+	RedisPass string
 }
 
 func New() *Env {
@@ -60,6 +63,9 @@ func New() *Env {
 
 	cloudinaryUrl := os.Getenv("CLOUDINARY_URL")
 
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPass := os.Getenv("REDIS_PASS")
+
 	fmt.Println("isProduction", isProduction)
 	fmt.Println("port", port)
 	fmt.Println("host", host)
@@ -80,6 +86,9 @@ func New() *Env {
 
 	fmt.Println("cloudinaryUrl", cloudinaryUrl)
 
+	fmt.Println("redisAddr", redisAddr)
+	fmt.Println("redisPass", redisPass)
+
 	return &Env{
 		IsProduction:          isProduction,
 		Port:                  port,
@@ -95,6 +104,8 @@ func New() *Env {
 		DomainFe:              domainFe,
 		CloudinaryUrl:         cloudinaryUrl,
 		DomainBe:              domainBe,
+		RedisAddr:             redisAddr,
+		RedisPass:             redisPass,
 	}
 }
 

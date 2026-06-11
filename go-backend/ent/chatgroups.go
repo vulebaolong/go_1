@@ -21,9 +21,9 @@ type ChatGroups struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty" userId`
+	UserID int `json:"userId"`
 	// Name holds the value of the "name" field.
-	Name *string `json:"name,omitempty" name`
+	Name *string `json:"name"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.

@@ -2,6 +2,7 @@ package dependency
 
 import (
 	"go-backend/ent"
+	"go-backend/internal/common/cache"
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/middlewares"
 	"go-backend/internal/common/socket"
@@ -18,18 +19,21 @@ import (
 func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env, allowOrigins []string) {
 	tokenUsecase := usecase_impl.NewTokenUsecase(env)
 
+	cache := cache.NewCache(env)
+
 	// repository
 	articleRepository := repository_impl.NewArticleRepository(entClient, gormClient)
 	userRepository := repository_impl.NewUserRepository(entClient)
 	chatGroupRepository := repository_impl.NewChatGroupRepository(entClient)
 	chatGroupMemberRepository := repository_impl.NewChatGroupMemberRepository(entClient)
 	unitOfWorkRepository := repository_impl.NewUnitOfWorkRepository(entClient)
+	chatMessageRepository := repository_impl.NewChatMessageRepository(entClient)
 
 	localFileStorage := storage_impl.NewLocalFileStorage("public")
 	cloudinaryFileStorage := storage_impl.NewCloudinaryStorage(env)
 
 	// Socket
-	chatUsecase := usecase_impl.NewChatUsecase(tokenUsecase, userRepository, chatGroupRepository, chatGroupMemberRepository, unitOfWorkRepository)
+	chatUsecase := usecase_impl.NewChatUsecase(tokenUsecase, userRepository, chatGroupRepository, chatGroupMemberRepository, unitOfWorkRepository, chatMessageRepository)
 	chatHandler := handler.NewChatHandler(chatUsecase)
 	socket := socket.NewSocket(chatHandler)
 	socket.Start(ginEngine, allowOrigins)
@@ -38,7 +42,7 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 
 	articleUsecase := usecase_impl.NewArticleUsecase(articleRepository)
 	articleHandler := handler.NewArticleHandler(articleUsecase)
-	articleDelivery := delivery.NewArticleDelivery(articleHandler)
+	articleDelivery := delivery.NewArticleDelivery(articleHandler, cache, authMiddleware)
 
 	demoUsecase := usecase_impl.NewDemoUsecase()
 	demoHandler := handler.NewDemoHandler(demoUsecase)
@@ -56,6 +60,10 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	chatGroupHandler := handler.NewChatGroupHandler(chatGroupUsecase)
 	chatGroupDelivery := delivery.NewChatGroupDelivery(chatGroupHandler)
 
-	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery)
+	chatMessageUsecase := usecase_impl.NewChatMessageUsecase(chatMessageRepository)
+	chatMessageHandler := handler.NewChatMessageHandler(chatMessageUsecase)
+	chatMessageDelivery := delivery.NewChatMessageDelivery(chatMessageHandler)
+
+	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery, chatMessageDelivery)
 	rootDelivery.RegisterRouter(ginEngine)
 }

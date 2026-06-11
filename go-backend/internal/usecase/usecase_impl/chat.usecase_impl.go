@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"go-backend/ent"
+	"go-backend/internal/dto"
 	"go-backend/internal/repository"
 	"go-backend/internal/usecase"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -17,15 +19,17 @@ type ChatUsecase struct {
 	chatGroupRepository       repository.ChatGroupRepository
 	chatGroupMemberRepository repository.ChatGroupMemberRepository
 	unitOfWorkRepository      repository.UnitOfWorkRepository
+	chatMessageRepository     repository.ChatMessageRepository
 }
 
-func NewChatUsecase(tokenUsecase usecase.TokenUsecase, userRepository repository.UserRepository, chatGroupRepository repository.ChatGroupRepository, chatGroupMemberRepository repository.ChatGroupMemberRepository, unitOfWorkRepository repository.UnitOfWorkRepository) usecase.ChatUsecase {
+func NewChatUsecase(tokenUsecase usecase.TokenUsecase, userRepository repository.UserRepository, chatGroupRepository repository.ChatGroupRepository, chatGroupMemberRepository repository.ChatGroupMemberRepository, unitOfWorkRepository repository.UnitOfWorkRepository, chatMessageRepository repository.ChatMessageRepository) usecase.ChatUsecase {
 	return &ChatUsecase{
 		tokenUsecase:              tokenUsecase,
 		userRepository:            userRepository,
 		chatGroupRepository:       chatGroupRepository,
 		chatGroupMemberRepository: chatGroupMemberRepository,
 		unitOfWorkRepository:      unitOfWorkRepository,
+		chatMessageRepository:     chatMessageRepository,
 	}
 }
 
@@ -135,4 +139,49 @@ func (c *ChatUsecase) JoinGroup(ctx context.Context, accessToken string, chatGro
 	}
 
 	return chatGroup, nil
+}
+
+// SendMessage implements [usecase.ChatUsecase].
+func (c *ChatUsecase) SendMessage(ctx context.Context, accessToken string, chatGroupId int, message string, createdAt time.Time) (*dto.SendMessageReturn, error) {
+	claimAccessToken, err := c.tokenUsecase.VerifyAccessToken(accessToken, jwt.WithoutClaimsValidation())
+	if err != nil {
+		return nil, err
+	}
+	user, err := c.userRepository.FindUserById(ctx, claimAccessToken.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	chatGroup, err := c.chatGroupRepository.FindOneById(ctx, chatGroupId)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(chatGroup.Edges.ChatGroupMembers)
+	fmt.Println("user", user)
+
+	isUserInChatGroup := false
+	for _, member := range chatGroup.Edges.ChatGroupMembers {
+		if member.Edges.Users.ID == user.ID {
+			isUserInChatGroup = true
+		}
+	}
+
+	if !isUserInChatGroup {
+		return nil, errors.New("User not exists chat group")
+	}
+
+	go func() {
+		_, err = c.chatMessageRepository.CreateMessage(ctx, user.ID, chatGroup.ID, message, createdAt)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}()
+
+	return &dto.SendMessageReturn{
+		MessageText: message,
+		ChatGroupId: chatGroup.ID,
+		UserId:      user.ID,
+	}, nil
 }

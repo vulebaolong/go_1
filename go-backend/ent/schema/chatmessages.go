@@ -17,9 +17,9 @@ type ChatMessages struct {
 // Fields of the ChatMessages.
 func (ChatMessages) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("chat_group_id").StructTag("chatGroupId"),
-		field.Int("user_id").StructTag("userId"),
-		field.Text("message_text").StructTag("messageText"),
+		field.Int("chat_group_id").StructTag(`json:"chatGroupId"`),
+		field.Int("user_id").StructTag(`json:"userId"`),
+		field.Text("message_text").StructTag(`json:"messageText"`),
 
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

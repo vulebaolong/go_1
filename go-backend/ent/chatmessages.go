@@ -22,11 +22,11 @@ type ChatMessages struct {
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt *time.Time `json:"deletedAt"`
 	// ChatGroupID holds the value of the "chat_group_id" field.
-	ChatGroupID int `json:"chat_group_id,omitempty" chatGroupId`
+	ChatGroupID int `json:"chatGroupId"`
 	// UserID holds the value of the "user_id" field.
-	UserID int `json:"user_id,omitempty" userId`
+	UserID int `json:"userId"`
 	// MessageText holds the value of the "message_text" field.
-	MessageText string `json:"message_text,omitempty" messageText`
+	MessageText string `json:"messageText"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.

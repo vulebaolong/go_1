@@ -5,20 +5,22 @@ import (
 )
 
 type rootDelivery struct {
-	demoDelivery      *demoDelivery
-	articleDelivery   *articleDelivery
-	authDelivery      *authDelivery
-	userDelivery      *userDelivery
-	chatGroupDelivery *chatGroupDelivery
+	demoDelivery        *demoDelivery
+	articleDelivery     *articleDelivery
+	authDelivery        *authDelivery
+	userDelivery        *userDelivery
+	chatGroupDelivery   *chatGroupDelivery
+	chatMessageDelivery *chatMessageDelivery
 }
 
-func NewRootDelivery(demoDelivery *demoDelivery, articleDelivery *articleDelivery, authDelivery *authDelivery, userDelivery *userDelivery, chatGroupDelivery *chatGroupDelivery) *rootDelivery {
+func NewRootDelivery(demoDelivery *demoDelivery, articleDelivery *articleDelivery, authDelivery *authDelivery, userDelivery *userDelivery, chatGroupDelivery *chatGroupDelivery, chatMessageDelivery *chatMessageDelivery) *rootDelivery {
 	return &rootDelivery{
-		demoDelivery:      demoDelivery,
-		articleDelivery:   articleDelivery,
-		authDelivery:      authDelivery,
-		userDelivery:      userDelivery,
-		chatGroupDelivery: chatGroupDelivery,
+		demoDelivery:        demoDelivery,
+		articleDelivery:     articleDelivery,
+		authDelivery:        authDelivery,
+		userDelivery:        userDelivery,
+		chatGroupDelivery:   chatGroupDelivery,
+		chatMessageDelivery: chatMessageDelivery,
 	}
 }
 
@@ -30,6 +32,7 @@ func (r *rootDelivery) RegisterRouter(ginEngine *gin.Engine) {
 		r.authDelivery.RegisterRouter(apiGroup)
 		r.userDelivery.RegisterRouter(apiGroup)
 		r.chatGroupDelivery.RegisterRouter(apiGroup)
+		r.chatMessageDelivery.RegisterRouter(apiGroup)
 		// gom các bộ API
 	}
 }
