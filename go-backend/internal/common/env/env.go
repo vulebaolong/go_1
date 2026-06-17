@@ -32,6 +32,13 @@ type Env struct {
 
 	RedisAddr string
 	RedisPass string
+
+	ElasticAddrs           string
+	ElasticUser            string
+	ElasticPassword        string
+	ElasticCertFingerprint string
+
+	RabbitMQURL string
 }
 
 func New() *Env {
@@ -66,6 +73,13 @@ func New() *Env {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisPass := os.Getenv("REDIS_PASS")
 
+	elasticAddrs := os.Getenv("ELASTIC_ADDRS")
+	elasticUser := os.Getenv("ELASTIC_USER")
+	elasticPassword := os.Getenv("ELASTIC_PASSWORD")
+	elasticCertFingerprint := os.Getenv("ELASTIC_CERT_FINGERPRINT")
+
+	rabbitMQURL := os.Getenv("RABBIT_MQ_URL")
+
 	fmt.Println("isProduction", isProduction)
 	fmt.Println("port", port)
 	fmt.Println("host", host)
@@ -89,23 +103,35 @@ func New() *Env {
 	fmt.Println("redisAddr", redisAddr)
 	fmt.Println("redisPass", redisPass)
 
+	fmt.Println("elasticAddrs", elasticAddrs)
+	fmt.Println("elasticUser", elasticUser)
+	fmt.Println("elasticPassword", elasticPassword)
+	fmt.Println("elasticCertFingerprint", elasticCertFingerprint)
+
+	fmt.Println("rabbitMQURL", rabbitMQURL)
+
 	return &Env{
-		IsProduction:          isProduction,
-		Port:                  port,
-		Host:                  host,
-		DatabaseUrl:           databaseUrl,
-		ExpiresAtAccessToken:  expiresAtAccessToken,
-		SecretAccessToken:     secretAccessToken,
-		ExpiresAtRefreshToken: expiresAtRefreshToken,
-		SecretRefreshToken:    secretRefreshToken,
-		GoogleClientId:        googleClientId,
-		GoogleClientSecret:    googleClientSecret,
-		GoogleRedirectUrl:     googleRedirectUrl,
-		DomainFe:              domainFe,
-		CloudinaryUrl:         cloudinaryUrl,
-		DomainBe:              domainBe,
-		RedisAddr:             redisAddr,
-		RedisPass:             redisPass,
+		IsProduction:           isProduction,
+		Port:                   port,
+		Host:                   host,
+		DatabaseUrl:            databaseUrl,
+		ExpiresAtAccessToken:   expiresAtAccessToken,
+		SecretAccessToken:      secretAccessToken,
+		ExpiresAtRefreshToken:  expiresAtRefreshToken,
+		SecretRefreshToken:     secretRefreshToken,
+		GoogleClientId:         googleClientId,
+		GoogleClientSecret:     googleClientSecret,
+		GoogleRedirectUrl:      googleRedirectUrl,
+		DomainFe:               domainFe,
+		CloudinaryUrl:          cloudinaryUrl,
+		DomainBe:               domainBe,
+		RedisAddr:              redisAddr,
+		RedisPass:              redisPass,
+		ElasticAddrs:           elasticAddrs,
+		ElasticUser:            elasticUser,
+		ElasticPassword:        elasticPassword,
+		ElasticCertFingerprint: elasticCertFingerprint,
+		RabbitMQURL:            rabbitMQURL,
 	}
 }
 

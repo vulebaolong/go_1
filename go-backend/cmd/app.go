@@ -7,6 +7,7 @@ import (
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/gorm_client"
 	"go-backend/internal/common/middlewares"
+	"go-backend/internal/common/rabbitmq"
 	"go-backend/internal/common/response"
 	"go-backend/internal/common/swagger"
 	dependency "go-backend/internal/di"
@@ -19,6 +20,7 @@ type App struct {
 	ginEngine *gin.Engine
 	env       *env.Env
 	entClient *ent.Client
+	rabbitmq  *rabbitmq.RabbitMQ
 }
 
 func NewApp() *App {
@@ -62,12 +64,14 @@ func NewApp() *App {
 	// ginEngine.Use(middlewares.C)
 	entClient := ent_client.New(env)
 	gormClient := gorm_client.New(env)
+	rabbitmq := rabbitmq.NewRabbitMQ(env)
 	dependency.Injection(ginEngine, entClient, gormClient, env, corsConfig.AllowOrigins)
 
 	return &App{
 		ginEngine: ginEngine,
 		env:       env,
 		entClient: entClient,
+		rabbitmq:  rabbitmq,
 	}
 }
 

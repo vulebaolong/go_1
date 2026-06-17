@@ -71,7 +71,7 @@ func (a *userRepository) UpdateAvatarById(ctx context.Context, id int, avatar st
 }
 
 // GetAll implements [repository.UserRepository].
-func (a *userRepository) GetAll(ctx context.Context, query pagination.Query, filters dto.UserFindAllFilters) (any, error) {
+func (a *userRepository) GetAll(ctx context.Context, query pagination.Query, filters dto.UserFindAllFilters) ([]*ent.Users, error) {
 	entQuery := a.entClient.Users.Query()
 
 	handlerFilterUser(filters, entQuery)

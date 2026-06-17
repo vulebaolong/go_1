@@ -3,6 +3,7 @@ package dependency
 import (
 	"go-backend/ent"
 	"go-backend/internal/common/cache"
+	"go-backend/internal/common/elastic"
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/middlewares"
 	"go-backend/internal/common/socket"
@@ -28,6 +29,11 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	chatGroupMemberRepository := repository_impl.NewChatGroupMemberRepository(entClient)
 	unitOfWorkRepository := repository_impl.NewUnitOfWorkRepository(entClient)
 	chatMessageRepository := repository_impl.NewChatMessageRepository(entClient)
+
+	elastic := elastic.NewElastic(env, articleRepository, userRepository)
+	elastic.InitArticle()
+	elastic.InitUser()
+	searchRepository := repository_impl.NewSearchRepository(elastic)
 
 	localFileStorage := storage_impl.NewLocalFileStorage("public")
 	cloudinaryFileStorage := storage_impl.NewCloudinaryStorage(env)
@@ -64,6 +70,10 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	chatMessageHandler := handler.NewChatMessageHandler(chatMessageUsecase)
 	chatMessageDelivery := delivery.NewChatMessageDelivery(chatMessageHandler)
 
-	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery, chatMessageDelivery)
+	searchUsecase := usecase_impl.NewSearchUsecase(searchRepository)
+	searchHandler := handler.NewSearchHandler(searchUsecase)
+	searchDelivery := delivery.NewSearchDelivery(searchHandler)
+
+	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery, chatMessageDelivery, searchDelivery)
 	rootDelivery.RegisterRouter(ginEngine)
 }

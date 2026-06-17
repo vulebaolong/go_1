@@ -5,6 +5,7 @@ func main() {
 
 	defer func() {
 		app.entClient.Close()
+		app.rabbitmq.Conn.Close()
 	}()
 
 	app.Start()

@@ -11,9 +11,10 @@ type rootDelivery struct {
 	userDelivery        *userDelivery
 	chatGroupDelivery   *chatGroupDelivery
 	chatMessageDelivery *chatMessageDelivery
+	searchDelivery      *searchDelivery
 }
 
-func NewRootDelivery(demoDelivery *demoDelivery, articleDelivery *articleDelivery, authDelivery *authDelivery, userDelivery *userDelivery, chatGroupDelivery *chatGroupDelivery, chatMessageDelivery *chatMessageDelivery) *rootDelivery {
+func NewRootDelivery(demoDelivery *demoDelivery, articleDelivery *articleDelivery, authDelivery *authDelivery, userDelivery *userDelivery, chatGroupDelivery *chatGroupDelivery, chatMessageDelivery *chatMessageDelivery, searchDelivery *searchDelivery) *rootDelivery {
 	return &rootDelivery{
 		demoDelivery:        demoDelivery,
 		articleDelivery:     articleDelivery,
@@ -21,6 +22,7 @@ func NewRootDelivery(demoDelivery *demoDelivery, articleDelivery *articleDeliver
 		userDelivery:        userDelivery,
 		chatGroupDelivery:   chatGroupDelivery,
 		chatMessageDelivery: chatMessageDelivery,
+		searchDelivery:      searchDelivery,
 	}
 }
 
@@ -33,6 +35,7 @@ func (r *rootDelivery) RegisterRouter(ginEngine *gin.Engine) {
 		r.userDelivery.RegisterRouter(apiGroup)
 		r.chatGroupDelivery.RegisterRouter(apiGroup)
 		r.chatMessageDelivery.RegisterRouter(apiGroup)
+		r.searchDelivery.RegisterRouter(apiGroup)
 		// gom các bộ API
 	}
 }

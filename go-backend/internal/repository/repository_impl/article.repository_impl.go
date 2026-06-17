@@ -62,7 +62,7 @@ func (a *articleRepository) CreateGorm(ctx context.Context, body dto.ArticleCrea
 }
 
 // GetAll implements [repository.ArticleRepository].
-func (a *articleRepository) GetAll(ctx context.Context, query pagination.Query, filters dto.ArticleFindAllFilters) (any, error) {
+func (a *articleRepository) GetAll(ctx context.Context, query pagination.Query, filters dto.ArticleFindAllFilters) ([]*ent.Articles, error) {
 	entQuery := a.entClient.Articles.Query()
 
 	handlerFilter(filters, entQuery)
