@@ -2,15 +2,13 @@ package main
 
 import (
 	"fmt"
-	"go-backend/ent"
-	"go-backend/internal/common/ent_client"
-	"go-backend/internal/common/env"
-	"go-backend/internal/common/gorm_client"
-	"go-backend/internal/common/middlewares"
-	"go-backend/internal/common/rabbitmq"
-	"go-backend/internal/common/response"
-	"go-backend/internal/common/swagger"
-	dependency "go-backend/internal/di"
+	"go-order/ent"
+	"go-order/internal/common/ent_client"
+	"go-order/internal/common/env"
+	"go-order/internal/common/middlewares"
+	"go-order/internal/common/rabbitmq"
+	"go-order/internal/common/response"
+	dependency "go-order/internal/di"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -37,7 +35,7 @@ func NewApp() *App {
 
 	// relativePath: bí dánh dùng ở web, thay thế cho tên folder
 	// root: folder thật ở may/server sẽ được truy cập khi dùng bí danh
-	// ginEngine.Static("go-backend", "") // lộ code
+	// ginEngine.Static("go-order", "") // lộ code
 	// ginEngine.Static("docx", "./public/docx") // example
 	// ginEngine.Static("xlxx", "./public/xlxx") // example
 	ginEngine.Static("images", "./public/images")
@@ -57,15 +55,15 @@ func NewApp() *App {
 	// 	}
 	// })
 
-	swagger.Start(ginEngine, env)
+	// swagger.Start(ginEngine, env)
 
 	// ginEngine.Use(middlewares.A)
 	// ginEngine.Use(middlewares.B)
 	// ginEngine.Use(middlewares.C)
 	entClient := ent_client.New(env)
-	gormClient := gorm_client.New(env)
+	// gormClient := gorm_client.New(env)
 	rabbitmq := rabbitmq.NewRabbitMQ(env)
-	dependency.Injection(ginEngine, entClient, gormClient, env, corsConfig.AllowOrigins, rabbitmq)
+	dependency.Injection(ginEngine, entClient, env, corsConfig.AllowOrigins, rabbitmq)
 
 	return &App{
 		ginEngine: ginEngine,

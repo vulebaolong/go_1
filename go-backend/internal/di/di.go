@@ -6,6 +6,7 @@ import (
 	"go-backend/internal/common/elastic"
 	"go-backend/internal/common/env"
 	"go-backend/internal/common/middlewares"
+	"go-backend/internal/common/rabbitmq"
 	"go-backend/internal/common/socket"
 	storage_impl "go-backend/internal/common/storage/impl"
 	"go-backend/internal/delivery"
@@ -17,7 +18,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env, allowOrigins []string) {
+func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB, env *env.Env, allowOrigins []string, rabbitmq *rabbitmq.RabbitMQ) {
 	tokenUsecase := usecase_impl.NewTokenUsecase(env)
 
 	cache := cache.NewCache(env)
@@ -74,6 +75,10 @@ func Injection(ginEngine *gin.Engine, entClient *ent.Client, gormClient *gorm.DB
 	searchHandler := handler.NewSearchHandler(searchUsecase)
 	searchDelivery := delivery.NewSearchDelivery(searchHandler)
 
-	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery, chatMessageDelivery, searchDelivery)
+	orderUsecase := usecase_impl.NewOrderUsecase(rabbitmq)
+	orderHandler := handler.NewOrderHandler(orderUsecase)
+	orderDelivery := delivery.NewOrderDelivery(orderHandler, authMiddleware)
+
+	rootDelivery := delivery.NewRootDelivery(demoDelivery, articleDelivery, authDelivery, userDelivery, chatGroupDelivery, chatMessageDelivery, searchDelivery, orderDelivery)
 	rootDelivery.RegisterRouter(ginEngine)
 }
