@@ -2,7 +2,6 @@ package usecase_impl
 
 import (
 	"context"
-	"encoding/json"
 	"go-backend/ent"
 	"go-backend/internal/common/rabbitmq"
 	"go-backend/internal/common/response"
@@ -25,24 +24,24 @@ func (a *orderUsecase) FindAll(ctx context.Context) (any, error) {
 	return "FindAll", nil
 }
 
-// Create implements [usecase.OrderUsecase].
-func (a *orderUsecase) Create(ctx context.Context, body dto.CreateOrder) (any, error) {
+// CreateSend implements [usecase.OrderUsecase].
+func (a *orderUsecase) CreateSend(ctx context.Context, body dto.CreateOrder) (any, error) {
+	err := a.rabbitmq.Send(ctx, "CREATE_ORDER_SEND", body)
+	if err != nil {
+		return nil, response.NewBadRequestException(err.Error())
+	}
+	return true, nil
+}
 
-	// err := a.rabbitmq.Send(ctx, "CREATE_ORDER", body)
-	// if err != nil {
-	// 	return nil, response.NewBadRequestException(err.Error())
-	// }
-
+// CreateRequest implements [usecase.OrderUsecase].
+func (a *orderUsecase) CreateRequest(ctx context.Context, body dto.CreateOrder) (any, error) {
 	var result *ent.Orders
 
 	err := a.rabbitmq.Request(
 		ctx,
-		"CREATE_ORDER",
+		"CREATE_ORDER_REQUEST",
 		body,
-		func(payload []byte) error {
-			err := json.Unmarshal(payload, &result)
-			return err
-		},
+		&result,
 	)
 	if err != nil {
 		return nil, response.NewBadRequestException(err.Error())

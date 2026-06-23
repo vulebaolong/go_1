@@ -31,7 +31,7 @@ func (a *OrderHandler) FindAll(ctx *gin.Context) {
 	response.Success(result, "", 0, ctx)
 }
 
-func (a *OrderHandler) Create(ctx context.Context, payload []byte) error {
+func (a *OrderHandler) CreateOn(ctx context.Context, payload []byte) error {
 	var body dto.CreateOrder
 	err := json.Unmarshal(payload, &body)
 	if err != nil {
@@ -45,4 +45,20 @@ func (a *OrderHandler) Create(ctx context.Context, payload []byte) error {
 	}
 
 	return nil
+}
+
+func (a *OrderHandler) CreateOnReply(ctx context.Context, payload []byte) (any, error) {
+	var body dto.CreateOrder
+	err := json.Unmarshal(payload, &body)
+	if err != nil {
+		return nil, err
+	}
+
+	orderNew, err := a.orderUsecase.Create(ctx, body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return orderNew, nil
 }

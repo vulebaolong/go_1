@@ -17,5 +17,6 @@ func NewOrderDelivery(orderHandler *handler.OrderHandler) *orderDelivery {
 }
 
 func (d *orderDelivery) RegisterRouter(rabbitmq *rabbitmq.RabbitMQ) {
-	rabbitmq.On(context.Background(), "CREATE_ORDER", d.orderHandler.Create)
+	rabbitmq.On(context.Background(), "CREATE_ORDER_SEND", d.orderHandler.CreateOn)
+	rabbitmq.OnReply(context.Background(), "CREATE_ORDER_REQUEST", d.orderHandler.CreateOnReply)
 }

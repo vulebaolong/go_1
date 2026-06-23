@@ -50,7 +50,7 @@ func (a *OrderHandler) Create(ctx *gin.Context) {
 
 	body.UserId = user.ID
 
-	result, err := a.orderUsecase.Create(ctx.Request.Context(), body)
+	result, err := a.orderUsecase.CreateRequest(ctx.Request.Context(), body)
 	if err != nil {
 		ctx.Error(err)
 		return

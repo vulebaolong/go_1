@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go-order/internal/common/env"
 	"log"
@@ -111,6 +112,11 @@ func publishReply(ctx context.Context, ch *amqp.Channel, queueName string, reply
 		})
 }
 
+type Reply struct {
+	ErrorString string
+	Data        json.RawMessage
+}
+
 func (r *RabbitMQ) Send(ctx context.Context, queueName string, payload any) (err error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -188,7 +194,7 @@ func (r *RabbitMQ) On(ctx context.Context, queueName string, handler func(contex
 	return
 }
 
-func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, unmarshal func([]byte)) (err error) {
+func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, result any) (err error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Println(err)
@@ -203,7 +209,7 @@ func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, u
 	defer ch.Close()
 
 	// TẠM ==================================
-	queueTemp, err := queueDeclareTemp(ch, queueName)
+	queueTemp, err := queueDeclareTemp(ch, "")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -211,7 +217,7 @@ func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, u
 	msgs, err := ch.Consume(
 		queueTemp.Name, // queue
 		"",             // consumer
-		false,          // auto-ack
+		true,           // auto-ack
 		false,          // exclusive
 		false,          // no-local
 		false,          // no-wait
@@ -241,15 +247,40 @@ func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, u
 	}
 	// ==================================
 
-	for d := range msgs {
-		if d.CorrelationId != corrId {
-			continue
+	for {
+		select {
+		case <-ctx.Done():
+			err = errors.New("Request timeout")
+			fmt.Println(err)
+			return
+
+		case d := <-msgs:
+			if d.CorrelationId != corrId {
+				continue
+			}
+
+			var bodyReply Reply
+			err = json.Unmarshal(d.Body, &bodyReply)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			if bodyReply.ErrorString != "" {
+				err = errors.New(bodyReply.ErrorString)
+				fmt.Println(err)
+				return
+			}
+
+			err = json.Unmarshal(bodyReply.Data, result)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			return
 		}
-
-		unmarshal(d.Body)
 	}
-
-	return
 }
 
 func (r *RabbitMQ) OnReply(ctx context.Context, queueName string, handler func(context.Context, []byte) (any, error)) (err error) {
@@ -284,20 +315,58 @@ func (r *RabbitMQ) OnReply(ctx context.Context, queueName string, handler func(c
 	go func() {
 		defer ch.Close()
 		for d := range msgs {
+			// hàm gửi lại lỗi cho các logic phía dưới
+			replyError := func(replyError error) {
+				d.Nack(false, false)
+
+				bodyReply := Reply{
+					ErrorString: replyError.Error(),
+					Data:        nil,
+				}
+
+				body, err := json.Marshal(bodyReply)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+
+				err = publishNotReply(ctx, ch, d.ReplyTo, d.CorrelationId, body)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+			}
+
 			// handler
 			result, err := handler(ctx, d.Body)
+			if err != nil {
+				replyError(err)
+				continue
+			}
 
-			body, err := json.Marshal(result)
+			data, err := json.Marshal(result)
+			if err != nil {
+				replyError(err)
+				continue
+			}
+
+			bodyReply := Reply{
+				ErrorString: "",
+				Data:        data,
+			}
+
+			body, err := json.Marshal(bodyReply)
+			if err != nil {
+				replyError(err)
+				continue
+			}
+
+			err = publishNotReply(ctx, ch, d.ReplyTo, d.CorrelationId, body)
 			if err != nil {
 				d.Nack(false, false)
 				continue
 			}
 
-			err = publishNotReply(ctx, ch, queueName, d.CorrelationId, body)
-			if err != nil {
-				d.Nack(false, false)
-				continue
-			}
 			d.Ack(false)
 		}
 	}()

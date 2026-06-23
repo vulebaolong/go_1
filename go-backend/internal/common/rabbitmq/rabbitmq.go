@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go-backend/internal/common/env"
 	"log"
@@ -72,6 +73,50 @@ func queueDeclareTemp(ch *amqp.Channel, queueName string) (amqp.Queue, error) {
 	)
 }
 
+func publishNotReply(ctx context.Context, ch *amqp.Channel, queueName string, corrId string, body []byte) error {
+	return ch.PublishWithContext(
+		ctx,
+		"",        // exchange
+		queueName, // routing key
+		false,     // mandatory
+		false,     // immediate
+		amqp.Publishing{
+			ContentType:   "application/json",
+			CorrelationId: corrId,
+
+			// với những message quan trọng, thì không chỉ lưu trữ trong RAM
+			// giúp khi rabbitmq restart thì message vẫn còn
+			// đảm bảo queue sẽ được giữ: durable = true
+			DeliveryMode: amqp.Persistent,
+
+			Body: body,
+		})
+}
+func publishReply(ctx context.Context, ch *amqp.Channel, queueName string, replyTo string, corrId string, body []byte) error {
+	return ch.PublishWithContext(
+		ctx,
+		"",        // exchange
+		queueName, // routing key
+		false,     // mandatory
+		false,     // immediate
+		amqp.Publishing{
+			ContentType:   "application/json",
+			CorrelationId: corrId,
+			// với những message quan trọng, thì không chỉ lưu trữ trong RAM
+			// giúp khi rabbitmq restart thì message vẫn còn
+			// đảm bảo queue sẽ được giữ: durable = true
+			DeliveryMode: amqp.Persistent,
+
+			ReplyTo: replyTo,
+			Body:    body,
+		})
+}
+
+type Reply struct {
+	ErrorString string
+	Data        json.RawMessage
+}
+
 func (r *RabbitMQ) Send(ctx context.Context, queueName string, payload any) (err error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -95,23 +140,7 @@ func (r *RabbitMQ) Send(ctx context.Context, queueName string, payload any) (err
 	}
 
 	corrId := randomString(32)
-	err = ch.PublishWithContext(
-		ctx,
-		"",             // exchange
-		queueMain.Name, // routing key
-		false,          // mandatory
-		false,          // immediate
-		amqp.Publishing{
-			ContentType:   "application/json",
-			CorrelationId: corrId,
-
-			// với những message quan trọng, thì không chỉ lưu trữ trong RAM
-			// giúp khi rabbitmq restart thì message vẫn còn
-			// đảm bảo queue sẽ được giữ: durable = true
-			DeliveryMode: amqp.Persistent,
-
-			Body: body,
-		})
+	err = publishNotReply(ctx, ch, queueMain.Name, corrId, body)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -165,7 +194,7 @@ func (r *RabbitMQ) On(ctx context.Context, queueName string, handler func(contex
 	return
 }
 
-func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, unmarshal func([]byte) error) (err error) {
+func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, result any) (err error) {
 	body, err := json.Marshal(payload)
 	if err != nil {
 		fmt.Println(err)
@@ -180,7 +209,7 @@ func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, u
 	defer ch.Close()
 
 	// TẠM ==================================
-	queueTemp, err := queueDeclareTemp(ch, queueName)
+	queueTemp, err := queueDeclareTemp(ch, "")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -188,7 +217,7 @@ func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, u
 	msgs, err := ch.Consume(
 		queueTemp.Name, // queue
 		"",             // consumer
-		false,          // auto-ack
+		true,           // auto-ack
 		false,          // exclusive
 		false,          // no-local
 		false,          // no-wait
@@ -211,36 +240,136 @@ func (r *RabbitMQ) Request(ctx context.Context, queueName string, payload any, u
 	}
 
 	corrId := randomString(32)
-	err = ch.PublishWithContext(
-		ctx,
-		"",             // exchange
-		queueMain.Name, // routing key
-		false,          // mandatory
-		false,          // immediate
-		amqp.Publishing{
-			ContentType:   "application/json",
-			CorrelationId: corrId,
-
-			// với những message quan trọng, thì không chỉ lưu trữ trong RAM
-			// giúp khi rabbitmq restart thì message vẫn còn
-			// đảm bảo queue sẽ được giữ: durable = true
-			DeliveryMode: amqp.Persistent,
-
-			Body: body,
-		})
+	err = publishReply(ctx, ch, queueMain.Name, queueTemp.Name, corrId, body)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	// ==================================
 
-	for d := range msgs {
-		if d.CorrelationId != corrId {
-			continue
-		}
+	for {
+		select {
+		case <-ctx.Done():
+			err = errors.New("Request timeout")
+			fmt.Println(err)
+			return
 
-		err = unmarshal(d.Body)
+		case d := <-msgs:
+			if d.CorrelationId != corrId {
+				continue
+			}
+
+			var bodyReply Reply
+			err = json.Unmarshal(d.Body, &bodyReply)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			if bodyReply.ErrorString != "" {
+				err = errors.New(bodyReply.ErrorString)
+				fmt.Println(err)
+				return
+			}
+
+			err = json.Unmarshal(bodyReply.Data, result)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			return
+		}
 	}
+}
+
+func (r *RabbitMQ) OnReply(ctx context.Context, queueName string, handler func(context.Context, []byte) (any, error)) (err error) {
+	ch, err := r.Conn.Channel()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// tạo queue nếu chưa có
+	// nếu đã có queue, nó sẽ kiểm tra đúng các setting hay không, nếu không đúng => báo lỗi, nếu đúng thì đi tiếp
+	queueMain, err := queueDeclareMain(ch, queueName)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	msgs, err := ch.Consume(
+		queueMain.Name, // queue
+		"",             // consumer
+		false,          // auto-ack
+		false,          // exclusive
+		false,          // no-local
+		false,          // no-wait
+		nil,            // args
+	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	go func() {
+		defer ch.Close()
+		for d := range msgs {
+			// hàm gửi lại lỗi cho các logic phía dưới
+			replyError := func(replyError error) {
+				d.Nack(false, false)
+
+				bodyReply := Reply{
+					ErrorString: replyError.Error(),
+					Data:        nil,
+				}
+
+				body, err := json.Marshal(bodyReply)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+
+				err = publishNotReply(ctx, ch, d.ReplyTo, d.CorrelationId, body)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+			}
+
+			// handler
+			result, err := handler(ctx, d.Body)
+			if err != nil {
+				replyError(err)
+				continue
+			}
+
+			data, err := json.Marshal(result)
+			if err != nil {
+				replyError(err)
+				continue
+			}
+
+			bodyReply := Reply{
+				ErrorString: "",
+				Data:        data,
+			}
+
+			body, err := json.Marshal(bodyReply)
+			if err != nil {
+				replyError(err)
+				continue
+			}
+
+			err = publishNotReply(ctx, ch, d.ReplyTo, d.CorrelationId, body)
+			if err != nil {
+				d.Nack(false, false)
+				continue
+			}
+
+			d.Ack(false)
+		}
+	}()
 
 	return
 }
