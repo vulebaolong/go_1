@@ -13,7 +13,6 @@ docker run --name con-go-backend -d -p 3066:3069 --env-file .env.production img-
 
 docker logs -f con-go-backend
 
-
 docker container remove con-go-backend
 docker container stop con-go-backend
 docker container start con-go-backend
@@ -21,3 +20,9 @@ docker container restart con-go-backend
 
 docker container list
 docker image list
+docker network list
+
+docker network create go-network
+
+docker compose --env-file .env.production up -d
+docker compose down
